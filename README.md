@@ -10,7 +10,7 @@ For more information, check out our preprint (https://www.biorxiv.org/content/ea
 devtools::install_github('chris-mcginnis-ucsf/doubletFinder')
 
 ## Dependencies
-DoubletFinder requires the Seurat (>= 2.0) and Matrix R packages
+DoubletFinder requires the Seurat (>= 2.0) and Matrix (1.2.14) R packages
 
 ## Usage
 
