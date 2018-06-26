@@ -25,7 +25,7 @@ DoubletFinder can be broken up into 4 steps:
 
 (4) Rank order and threshold pANN values according to the expected number of doublets
 
-![Alt text](Users/cmcginnis/Desktop/DDFig1B?raw=true "DoubletFinder Worklfow")
+![alt text](DF.screenshots/DDFig1B.png "Description goes here")
 
 DoubletFinder takes as an input a fully-processed Seurat object (i.e., after NormalizeData, FindVariableGenes, ScaleData, RunPCA, and RunTSNE ahve all been run).  
 
