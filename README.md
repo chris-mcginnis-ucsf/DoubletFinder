@@ -1,7 +1,7 @@
 # DoubletFinder
 DoubletFinder is an R package that predicts doublets in single-cell RNA sequencing data. 
 
-DoubletFinder is implemented to interface with Seurat (https://satijalab.org/seurat/).
+DoubletFinder is implemented to interface with Seurat >= 2.0 (https://satijalab.org/seurat/) 
 
 For more information, check out our preprint (https://www.biorxiv.org/content/early/2018/06/20/352484)
 
