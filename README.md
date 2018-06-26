@@ -25,7 +25,7 @@ DoubletFinder can be broken up into 4 steps:
 
 (4) Rank order and threshold pANN values according to the expected number of doublets
 
-![alternativetext](DF.screenshots/Workflow.png)
+![alternativetext](DF.screenshots/Workflow2.png)
 
 DoubletFinder takes the following arguments:
 
@@ -39,6 +39,6 @@ expected.doublets ~ This defines the pANN threshold used to make final doublet/s
 
 ## Application to Cell Hashing and Demuxlet data (Stoeckius et al., 2017, bioRxiv; Kang et al., 2018, Nature Biotechnology)
 
-![alternativetext](DF.screenshots/Results.png)
+![alternativetext](DF.screenshots/Results2.png)
 
 
