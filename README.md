@@ -25,7 +25,7 @@ DoubletFinder can be broken up into 4 steps:
 
 (4) Rank order and threshold pANN values according to the expected number of doublets
 
-![alternativetext](DF.screenshots/DDFig1B.png)
+![alternativetext](DF.screenshots/Workflow.png)
 
 DoubletFinder takes the following arguments:
 
@@ -37,8 +37,8 @@ proportion.NN ~ This defines the PC neighborhood size sued to calculate pANN, ex
 
 expected.doublets ~ This defines the pANN threshold used to make final doublet/singlet predictions. This value can best be estimated from cell loading densities into the 10X/Drop-Seq device.
 
-## Application to Cell Hashing data (Stoeckius et al., 2017, bioRxiv)
+## Application to Cell Hashing and Demuxlet data (Stoeckius et al., 2017, bioRxiv; Kang et al., 2018, Nature Biotechnology)
 
-## Application to Demuxlet data (Kang et al., 2018, Nature Biotechnology)
+![alternativetext](DF.screenshots/Results.png)
 
 
