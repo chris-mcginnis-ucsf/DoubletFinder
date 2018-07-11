@@ -57,7 +57,7 @@ doubletFinder <- function(seu, expected.doublets = 0, proportion.artificial = 0.
   print("Scaling data...")
   seu_wdoublets <- Seurat::ScaleData(seu_wdoublets, display.progress = TRUE)
   print("Running PCA...")
-  seu_wdoublets <- Seurat::RunPCA(seu_wdoublets, pc.genes = seu_wdoublets@var.genes, pcs.print = 0)
+  seu_wdoublets <- Seurat::RunPCA(seu_wdoublets, pcs.compute=ncol(seu@dr$pca@cell.embeddings), pc.genes = seu_wdoublets@var.genes, pcs.print = 0)
   
   ## Step 3: Record cell names and number
   cell.names <- seu_wdoublets@cell.names
