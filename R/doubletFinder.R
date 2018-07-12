@@ -29,7 +29,7 @@ doubletFinder <- function(seu, expected.doublets = 0, proportion.artificial = 0.
   
   ## Step 1: Generate artificial doublets from Seurat object input
   print("Creating artificial doublets...")
-  data <- seu@raw.data
+  data <- seu@raw.data[ , seu@cell.names]
   real.cells <- seu@cell.names
   n_real.cells <- length(real.cells)
   n_doublets <- round(n_real.cells/(1-proportion.artificial)-n_real.cells)
@@ -48,8 +48,6 @@ doubletFinder <- function(seu, expected.doublets = 0, proportion.artificial = 0.
                                  scale.factor = seu@calc.params$NormalizeData$scale.factor)
   print("Finding variable genes...")
   seu_wdoublets <- Seurat::FindVariableGenes(seu_wdoublets, do.plot = FALSE, 
-                                     #mean.function = seu@calc.params$FindVariableGenes$mean.function,
-                                     #dispersion.function = seu@calc.params$FindVariableGenes$dispersion.function,
                                      x.low.cutoff = seu@calc.params$FindVariableGenes$x.low.cutoff,
                                      x.high.cutoff = seu@calc.params$FindVariableGenes$x.high.cutoff,
                                      y.high.cutoff = seu@calc.params$FindVariableGenes$y.high.cutoff,
