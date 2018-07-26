@@ -29,8 +29,8 @@ doubletFinder <- function(seu, expected.doublets = 0, proportion.artificial = 0.
 
   ## Step 1: Generate artificial doublets from Seurat object input
   print("Creating artificial doublets...")
-  data <- seu@raw.data[ , seu@cell.names]
-  real.cells <- seu@cell.names
+  real.cells <- colnames(seu@data)
+  data <- seu@raw.data[ , real.cells]
   n_real.cells <- length(real.cells)
   n_doublets <- round(n_real.cells/(1-proportion.artificial)-n_real.cells)
   real.cells1 <- sample(real.cells, n_doublets, replace = TRUE)
