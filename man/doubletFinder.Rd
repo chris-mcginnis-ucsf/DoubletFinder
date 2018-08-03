@@ -4,8 +4,7 @@
 \alias{doubletFinder}
 \title{Doublet detection in single-cell RNA sequencing data}
 \usage{
-doubletFinder(seu, expected.doublets = 0, proportion.artificial = 0.25,
-  proportion.NN = 0.01)
+doubletFinder(seu, expected.doublets = 0, proportion.artificial = 0.25, proportion.NN = 0.01)
 }
 \arguments{
 \item{seu}{A fully-processed Seurat object (i.e. after normalization, variable gene definition, 
@@ -15,12 +14,12 @@ scaling, PCA, and tSNE).}
 This value can best be estimated from cell loading densities into the 10X/Drop-Seq device.}
 
 \item{proportion.NN}{The proportion (from 0-1) of the merged real-artificial dataset used to define
-each cell's neighborhood in PC space. Default set to 1%, based on optimization on PBMCs (see McGinnis, 
-Murrow and Gartner 2018, BioRxiv).}
+each cell neighborhood in PC space. Default set to 0.01, based on optimization on PBMCs (see McGinnis, 
+Murrow and Gartner 2018, bioRxiv).}
 
 \item{porportion.artificial}{The proportion (from 0-1) of the merged real-artificial dataset 
 that is artificial. In other words, this argument defines the total number of artificial doublets.
-Default is set to 25%, based on optimization on PBMCs (see McGinnis, Murrow and Gartner 2018, BioRxiv).}
+Default is set to 0.25, based on optimization on PBMCs (see McGinnis, Murrow and Gartner 2018, BioRxiv).}
 }
 \value{
 An updated Seurat object with metadata for pANN values and doublet predictions.
@@ -33,6 +32,6 @@ artificial nearest neighbors is defined for each real cell. Finally, real cells 
 ordered and predicted doublets are defined via thresholding based on the expected number
 of doublets.
 }
-\examples{
+\example{
 seu <- doubletFinder(seu, expected.doublets = 1000, proportion.artificial = 0.25, proportion.NN = 0.01)
 }
