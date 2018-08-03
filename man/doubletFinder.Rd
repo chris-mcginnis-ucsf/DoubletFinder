@@ -32,6 +32,6 @@ artificial nearest neighbors is defined for each real cell. Finally, real cells 
 ordered and predicted doublets are defined via thresholding based on the expected number
 of doublets.
 }
-\example{
+\examples{
 seu <- doubletFinder(seu, expected.doublets = 1000, proportion.artificial = 0.25, proportion.NN = 0.01)
 }
