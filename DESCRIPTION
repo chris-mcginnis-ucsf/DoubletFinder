@@ -4,8 +4,8 @@ Version: 1.0.0
 Authors@R: person("Chris", "McGinnis", email = "chris.mcginnis@ucsf.edu", role = c("aut","cre"))
 Description: DoubletFinder predicts doublets in single-cell RNA sequencing data by generating artificial doublets from existing data and ranking each real cell's proximity to artificial cells in gene expression space. More information about DoubletFinder can be found in McGinnis, Murrow and Gartner 2018, BioRxiv.
 Depends: R (>= 3.4.1)
+Imports: Seurat (>= 2.0.0), loomR (>= 0.2.0)
 License: CC-0
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1.9000
-
+RoxygenNote: 6.1.0

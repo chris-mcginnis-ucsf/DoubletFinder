@@ -2,36 +2,82 @@
 % Please edit documentation in R/doubletFinder.R
 \name{doubletFinder}
 \alias{doubletFinder}
+\alias{doubletFinder.seurat}
+\alias{doubletFinder.loom}
 \title{Doublet detection in single-cell RNA sequencing data}
 \usage{
-doubletFinder(seu, expected.doublets = 0, proportion.artificial = 0.25, proportion.NN = 0.01)
+doubletFinder(obj, ...)
+
+\method{doubletFinder}{seurat}(obj, expected.doublets = 0,
+  proportion.artificial = 0.25, proportion.NN = 0.01)
+
+\method{doubletFinder}{loom}(obj, expected.doublets = 0,
+  proportion.artificial = 0.25, proportion.NN = 0.01,
+  gene.names = "row_attrs/gene_names",
+  cell.names = "col_attrs/cell_names", overwrite = FALSE,
+  pcs.compute = 5, chunk.dims = NULL, chunk.size = NULL, ...)
 }
 \arguments{
-\item{seu}{A fully-processed Seurat object (i.e. after normalization, variable gene definition, 
+\item{obj}{A fully-processed Seurat or loom object (i.e. after normalization, variable gene definition,
 scaling, PCA, and tSNE).}
 
-\item{expected.doublets}{The number of doublets expected to be present in the original data. 
+\item{\dots}{Extra arguments to RunPCA.loom, such as \code{online.pca}, which determines
+whether the online PCA method should be used. Online PCA should only be used for very large
+datasets.}
+
+\item{expected.doublets}{The number of doublets expected to be present in the original data.
 This value can best be estimated from cell loading densities into the 10X/Drop-Seq device.}
 
-\item{proportion.NN}{The proportion (from 0-1) of the merged real-artificial dataset used to define
-each cell neighborhood in PC space. Default set to 0.01, based on optimization on PBMCs (see McGinnis, 
-Murrow and Gartner 2018, bioRxiv).}
-
-\item{porportion.artificial}{The proportion (from 0-1) of the merged real-artificial dataset 
+\item{proportion.artificial}{The proportion (from 0-1) of the merged real-artificial dataset
 that is artificial. In other words, this argument defines the total number of artificial doublets.
-Default is set to 0.25, based on optimization on PBMCs (see McGinnis, Murrow and Gartner 2018, BioRxiv).}
+Default is set to 25\%, based on optimization on PBMCs (see McGinnis, Murrow and Gartner 2018, BioRxiv).}
+
+\item{proportion.NN}{The proportion (from 0-1) of the merged real-artificial dataset used to define
+each cell's neighborhood in PC space. Default set to 1\%, based on optimization on PBMCs (see McGinnis,
+Murrow and Gartner 2018, BioRxiv).}
+
+\item{gene.names}{Dataset name in loom object for gene names; duplicates are not allowed.}
+
+\item{cell.names}{Dataset name in loom object for cell names; duplicates are not allowed.}
+
+\item{overwrite}{Whether to overwrite existing temporary file for the data with simulated
+doublets.}
+
+\item{pcs.compute}{Number of principal components to compute to determine distance between
+cells.}
+
+\item{chunk.dims}{Matrix chunk dimensions; auto-determined by default.}
+
+\item{chunk.size}{Maximum number of cells read/written to disk at once; auto-determined by default}
 }
 \value{
 An updated Seurat object with metadata for pANN values and doublet predictions.
+
+(loom) Nothing; loom objects are modified in place. This function will add pANN values
+and doublet predictions to column attributes.
 }
 \description{
 This function generaetes artificial nearest neighbors from existing single-cell RNA
-sequencing data. First, real and artificial data are merged. Second, dimension reduction 
+sequencing data. First, real and artificial data are merged. Second, dimension reduction
 is performed on the merged real-artificial dataset using PCA. Third, the proportion of
 artificial nearest neighbors is defined for each real cell. Finally, real cells are rank-
 ordered and predicted doublets are defined via thresholding based on the expected number
-of doublets.
+of doublets. This function has methods for both Seurat and loom objects. To use the method for loom,
+please install loomR (from GitHub, not on CRAN yet) and the loom branch of Seurat. See
+https://satijalab.org/seurat/mca_loom.html for more instructions.
 }
+\section{Methods (by class)}{
+\itemize{
+\item \code{seurat}: Doublet detection in single-cell RNA sequencing data
+
+\item \code{loom}: Doublet detection in single-cell RNA sequencing data
+}}
+
 \examples{
-seu <- doubletFinder(seu, expected.doublets = 1000, proportion.artificial = 0.25, proportion.NN = 0.01)
+seu <- doubletFinder(obj, expected.doublets = 1000, proportion.artificial = 0.25, proportion.NN = 0.01)
+
+doubletFinder(pbmc_loom, expected.doublets = 1000, proportion.artificial = 0.25,
+              proportion.NN = 0.01, gene.names = "row_attrs/Accession",
+              cell.names = "col_attrs/CellID",
+              overwrite = TRUE, pcs.compute = 10, online.pca = FALSE)
 }
