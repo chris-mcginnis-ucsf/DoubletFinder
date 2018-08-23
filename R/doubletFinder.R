@@ -108,6 +108,9 @@ doubletFinder.seurat <- function(obj, expected.doublets = 0, proportion.artifici
   return(obj)
 }
 
+#' @importFrom progress progress_bar
+NULL
+#'
 #' @param doublet.block.size Number of doublets to add at a time, so not to contain the entire
 #' doublet matrix in memory in case there are many doublets.
 #' @param gene.names Dataset name in loom object for gene names; duplicates are not allowed.
@@ -174,7 +177,7 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
                              do.transpose = FALSE, display.progress = FALSE)
   } else {
     n_chunks <- floor(n_doublets / doublet.block.size) # the last chunk is added separately
-    pb <- txtProgressBar(style = 3)
+    pb <- progress_bar$new(format = "|:bar| :percent :eta")
     for (i in 1:n_chunks) {
       ind1 <- 1 + (i - 1) * doublet.block.size
       ind2 <- i * doublet.block.size
@@ -185,9 +188,8 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
                                attributes.data = doublet_attrs,
                                layers.data = list(norm_data = doublet_mat, scale_data = doublet_mat),
                                do.transpose = FALSE, display.progress = FALSE)
-      setTxtProgressBar(pb, i / n_chunks)
+      pb$update(i / (n_chunks + 1))
     }
-    close(pb)
     remainder <- n_doublets %% doublet.block.size
     if (remainder > 0) {
       doublet_mat <-
@@ -197,7 +199,9 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
                                attributes.data = doublet_attrs,
                                layers.data = list(norm_data = doublet_mat, scale_data = doublet_mat),
                                do.transpose = FALSE, display.progress = FALSE)
+      pb$update(1)
     }
+    pb$terminate()
   }
   loom_wdoublets[[cell.names]][] <- cells_both
   # Free up memory
