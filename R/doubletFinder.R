@@ -149,7 +149,7 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
   cells_both <- c(real.cells, paste0("X", 1:n_doublets))
 
   # Make temporary loom file for data with simulated doublets
-  if (overwrite) {
+  if (overwrite && file.exists("loom_wdoublets.loom")) {
     invisible(file.remove("loom_wdoublets.loom"))
   }
   invisible(file.copy(obj$filename, "loom_wdoublets.loom"))
