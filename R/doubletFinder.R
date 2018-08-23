@@ -177,7 +177,7 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
                              do.transpose = FALSE, display.progress = FALSE)
   } else {
     n_chunks <- floor(n_doublets / doublet.block.size) # the last chunk is added separately
-    pb <- progress_bar$new(format = "|:bar| :percent :eta")
+    pb <- progress::progress_bar$new(format = "|:bar| :percent :eta")
     for (i in 1:n_chunks) {
       ind1 <- 1 + (i - 1) * doublet.block.size
       ind2 <- i * doublet.block.size
