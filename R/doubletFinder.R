@@ -108,6 +108,8 @@ doubletFinder.seurat <- function(obj, expected.doublets = 0, proportion.artifici
   return(obj)
 }
 
+#' @param doublet.block.size Number of doublets to add at a time, so not to contain the entire
+#' doublet matrix in memory in case there are many doublets.
 #' @param gene.names Dataset name in loom object for gene names; duplicates are not allowed.
 #' @param cell.names Dataset name in loom object for cell names; duplicates are not allowed.
 #' @param pcs.compute Number of principal components to compute to determine distance between
@@ -131,10 +133,11 @@ doubletFinder.seurat <- function(obj, expected.doublets = 0, proportion.artifici
 
 doubletFinder.loom <- function(obj, expected.doublets = 0,
                                proportion.artificial = 0.25, proportion.NN = 0.01,
+                               doublet.block.size = 50,
                                gene.names = "row_attrs/gene_names",
                                cell.names = "col_attrs/cell_names",
-                               overwrite = FALSE, pcs.compute = 5,
-                               chunk.size = NULL, chunk.dims = NULL, ...) {
+                               overwrite = FALSE, pcs.compute = 55,
+                               chunk.size = 1000, chunk.dims = c(256,256), ...) {
   if (expected.doublets == 0) {  stop("Need to set number of expected doublets...")  }
   ## Step 1: Generate artificial doublets from loom object input
   print("Creating artificial doublets...")
@@ -146,43 +149,61 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
   cells_both <- c(real.cells, paste0("X", 1:n_doublets))
 
   # Make temporary loom file for data with simulated doublets
+  if (overwrite) {
+    invisible(file.remove("loom_wdoublets.loom"))
+  }
+  invisible(file.copy(obj$filename, "loom_wdoublets.loom"))
   # Generate doublets
   real_ind1 <- sample(1:n_real.cells, n_doublets, replace = TRUE)
   real_ind2 <- sample(1:n_real.cells, n_doublets, replace = TRUE)
   # If not chunked, this will load about half of the data into memory
   # To conserve memory, get doublets by chunk
-  # As a rule of thumb, do calculation for 50 cells at a time
-  doublet_mat <- matrix(0, n_doublets, length(genes))
-  if (n_doublets <= 50) {
+  cn <- strsplit(cell.names, split = "/")[[1]][2]
+  loom_wdoublets <- connect("loom_wdoublets.loom", "r+")
+  # Delete the temporary file and clean up on exit
+  on.exit({loom_wdoublets$close_all(); invisible(file.remove("loom_wdoublets.loom"))
+    gc(verbose = FALSE)
+    hdf5r::h5garbage_collect()})
+  if (n_doublets <= doublet.block.size) {
     doublet_mat <-
       (obj[["matrix"]][real_ind1,] + obj[["matrix"]][real_ind2,]) / 2
+    doublet_attrs <- extend_col_attrs(n_doublets, loom_wdoublets, cell.names = cn)
+    loom_wdoublets$add.cells(matrix.data = doublet_mat,
+                             attributes.data = doublet_attrs,
+                             layers.data = list(norm_data = doublet_mat, scale_data = doublet_mat),
+                             do.transpose = FALSE, display.progress = FALSE)
   } else {
-    n_chunks <- floor(n_doublets / 50) # the last chunk is added separately
+    n_chunks <- floor(n_doublets / doublet.block.size) # the last chunk is added separately
     pb <- txtProgressBar(style = 3)
     for (i in 1:n_chunks) {
-      ind1 <- 1 + (i - 1) * 50
-      ind2 <- i * 50
-      doublet_mat[ind1:ind2,] <-
+      ind1 <- 1 + (i - 1) * doublet.block.size
+      ind2 <- i * doublet.block.size
+      doublet_mat <-
         (obj[["matrix"]][real_ind1[ind1:ind2],] + obj[["matrix"]][real_ind2[ind1:ind2],]) / 2
+      doublet_attrs <- extend_col_attrs(doublet.block.size, loom_wdoublets, cell.names = cn)
+      loom_wdoublets$add.cells(matrix.data = doublet_mat,
+                               attributes.data = doublet_attrs,
+                               layers.data = list(norm_data = doublet_mat, scale_data = doublet_mat),
+                               do.transpose = FALSE, display.progress = FALSE)
       setTxtProgressBar(pb, i / n_chunks)
     }
     close(pb)
-    remainder <- n_chunks %% 50
+    remainder <- n_doublets %% doublet.block.size
     if (remainder > 0) {
-      doublet_mat[(n_chunks * 50 + 1):n_doublets,] <-
+      doublet_mat <-
         (obj[["matrix"]][real_ind1[(ind2 + 1):n_doublets],] + obj[["matrix"]][real_ind2[(ind2 + 1):n_doublets],]) / 2
+      doublet_attrs <- extend_col_attrs(remainder, loom_wdoublets, cell.names = cn)
+      loom_wdoublets$add.cells(matrix.data = doublet_mat,
+                               attributes.data = doublet_attrs,
+                               layers.data = list(norm_data = doublet_mat, scale_data = doublet_mat),
+                               do.transpose = FALSE, display.progress = FALSE)
     }
   }
-  print("Writing artificial doublets to loom file")
-  doublets <- create_doublet_loom(n_doublets, doublet_mat, obj, overwrite = overwrite)
+  loom_wdoublets[[cell.names]][] <- cells_both
   # Free up memory
   rm(doublet_mat)
   gc(verbose = FALSE)
-  # Combine real cells and doublets
-  print("Combining real cells and doublets")
-  loom_wdoublets <- loomR::combine(list(obj, doublets), "loom_wdoublets.loom",
-                                    overwrite = overwrite)
-  gc(verbose = FALSE)
+  hdf5r::h5garbage_collect()
   ## Step 2: Pre-process real-artificial merged data using Seurat
   print("Normalizing Seurat object...")
   Seurat::NormalizeData(loom_wdoublets, overwrite = TRUE,
@@ -204,7 +225,7 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
   var_gene_inds <- loom_wdoublets[["row_attrs/var_genes"]][]
   var_genes <- genes[var_gene_inds]
   Seurat::RunPCA(loom_wdoublets, pcs.compute = pcs.compute, overwrite = TRUE,
-                 pc.genes = var_genes,
+                 pc.genes = var_genes, gene.names = gene.names, cell.names = cell.names,
                  do.print = FALSE,
                  chunk.size = chunk.size, ...)
 
@@ -225,6 +246,7 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
   #rownames(pANN) <- real.cells
 
   ## Step 6: Calculate pANN
+  print("Calculating pANN")
   k <- round(nCells * proportion.NN)
   for (i in 1:n_real.cells) {
     neighbors <- order(dist.mat[,i])
@@ -238,10 +260,5 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
   pANN$pANNPredictions[doublet_inds] <- "Doublet"
   obj$add.attribute(pANN, MARGIN = 2, overwrite = TRUE)
 
-  # Remove the temporary loom file for both real cells and simulated doublets
-  loom_wdoublets$close_all()
-  doublets$close_all()
-  file.remove(c("loom_wdoublets.loom", "doublets.loom"))
-  gc(verbose = FALSE)
   invisible(x = obj)
 }

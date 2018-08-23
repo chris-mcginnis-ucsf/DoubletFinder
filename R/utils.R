@@ -69,30 +69,3 @@ extend_col_attrs <- function(n_cells, obj, cell.names = "cell_names") {
   res[[cell.names]] <- paste0("X", 1:n_cells)
   res
 }
-
-#' Create loom object for the simulated doublets
-#'
-#' This function creates a new loom object for the simulated doublets. Here I assume that you have
-#' already run \code{NormalizeData}, \code{ScaleData}, and \code{FindVariableGenes} for the
-#' loom object with real cells.
-#'
-#' @param n_cells Number of doublets.
-#' @param mat The matrix with artificial doublet gene expression values
-#' @param obj The loom object with real cells, used to get dummy column attributes to make
-#' sure that the dummy has the right data type and dimensions.
-#' @param overwrite Whether to overwrite if there's an existing file \code{doublets.loom}; this
-#' is useful in case a previous run of \code{doubletFinder.loom} threw an error and failed to
-#' remove the temporary loom files before exiting.
-#'
-#' @return A connection to the doublet loom file
-#' @seealso \code{\link{extend_col_attrs}}
-#'
-create_doublet_loom <- function(n_cells, mat, obj, overwrite = FALSE) {
-  n_genes <- obj[["matrix"]]$dims[2]
-  row_attrs <- get_all_attributes(obj, 1)
-  col_attrs <- extend_col_attrs(n_cells, obj)
-  create("doublets.loom", do.transpose = FALSE,
-         data = mat, gene.attrs = row_attrs, cell.attrs = col_attrs,
-         layers = list(norm_data = mat, scale_data = mat),
-         overwrite = overwrite)
-}
