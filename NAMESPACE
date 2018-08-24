@@ -3,5 +3,7 @@
 export(doubletFinder)
 export(doubletFinder.loom)
 export(doubletFinder.seurat)
+import(doParallel)
+import(foreach)
 importFrom(parallelDist,parDist)
 importFrom(progress,progress_bar)

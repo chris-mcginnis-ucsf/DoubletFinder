@@ -46,7 +46,7 @@ doubletFinder.seurat <- function(obj, expected.doublets = 0, proportion.artifici
   real.cells1 <- sample(real.cells, n_doublets, replace = TRUE)
   real.cells2 <- sample(real.cells, n_doublets, replace = TRUE)
   doublets <- (data[ , real.cells1] + data[ , real.cells2])/2
-  colnames(doublets) <- paste("X", 1:n_doublets, sep = "")
+  colnames(doublets) <- paste("Doublet", 1:n_doublets, sep = "")
   data_wdoublets <- cbind(data, doublets)
 
   ## Step 2: Pre-process real-artificial merged data using Seurat
@@ -80,7 +80,7 @@ doubletFinder.seurat <- function(obj, expected.doublets = 0, proportion.artifici
   rm(seu_wdoublets)  ## Free up memory
   gc()               ## Free up memory
   dist.mat <- as.matrix(dist(pca.coord))
-  dist.mat <- dist.mat[,-grep("X", colnames(dist.mat))]
+  dist.mat <- dist.mat[,-grep("^Doublet\\d*$", colnames(dist.mat))]
 
   ## Step 5: Initialize pANN structure
   pANN <- as.data.frame(matrix(0L, nrow = n_real.cells, ncol = 1))
@@ -93,7 +93,7 @@ doubletFinder.seurat <- function(obj, expected.doublets = 0, proportion.artifici
     neighbors <- order(dist.mat[,i])
     neighbors <- neighbors[2:(k+1)]
     neighbor.names <- rownames(dist.mat)[neighbors]
-    pANN[i,1] <- length(grep("X", neighbor.names)) / k
+    pANN[i,1] <- length(grep("^Doublet\\d*$", neighbor.names)) / k
   }
 
   ## Step 7: Add results to metadata slot of original Seurat object
@@ -110,10 +110,13 @@ doubletFinder.seurat <- function(obj, expected.doublets = 0, proportion.artifici
 
 #' @importFrom progress progress_bar
 #' @importFrom parallelDist parDist
+#' @import doParallel
+#' @import foreach
 NULL
 #'
 #' @param doublet.block.size Number of doublets to add at a time, so not to contain the entire
 #' doublet matrix in memory in case there are many doublets.
+#' @param ncores Number of cores to use
 #' @param gene.names Dataset name in loom object for gene names; duplicates are not allowed.
 #' @param cell.names Dataset name in loom object for cell names; duplicates are not allowed.
 #' @param pcs.compute Number of principal components to compute to determine distance between
@@ -137,7 +140,7 @@ NULL
 
 doubletFinder.loom <- function(obj, expected.doublets = 0,
                                proportion.artificial = 0.25, proportion.NN = 0.01,
-                               doublet.block.size = 50,
+                               doublet.block.size = 50, ncores = 1,
                                gene.names = "row_attrs/gene_names",
                                cell.names = "col_attrs/cell_names",
                                overwrite = FALSE, pcs.compute = 55,
@@ -150,7 +153,7 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
   n_real.cells <- length(real.cells)
   n_doublets <- round(n_real.cells/(1 - proportion.artificial) - n_real.cells)
   nCells <- n_real.cells + n_doublets
-  cells_both <- c(real.cells, paste0("X", 1:n_doublets))
+  cells_both <- c(real.cells, paste0("Doublet", 1:n_doublets))
 
   # Make temporary loom file for data with simulated doublets
   if (overwrite && file.exists("loom_wdoublets.loom")) {
@@ -240,10 +243,8 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
   # this shouldn't be too bad
   pca.coord <- t(loom_wdoublets$col.attrs$pca_cell_embeddings[,])
   dist.mat <- as.matrix(parallelDist::parDist(pca.coord))
-  # Add column names
-  colnames(dist.mat) <- rownames(dist.mat) <- cells_both
-  browser()
-  dist.mat <- dist.mat[,-grep("X", colnames(dist.mat))]
+  # Remove distances between artificial doublets
+  dist.mat <- dist.mat[,-grep("^Doublet\\d*$", cells_both)]
 
   ## Step 5: Initialize pANN structure
   pANN <- data.frame(pANN = rep(0, n_real.cells),
@@ -254,13 +255,16 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
   ## Step 6: Calculate pANN
   print("Calculating pANN")
   k <- round(nCells * proportion.NN)
-  for (i in 1:n_real.cells) {
+  # Do this in parallel
+  old_ncores <- getDoParWorkers()
+  registerDoParallel(ncores)
+  pANN[,1] <- foreach(i = 1:n_real.cells, .combine = c) %dopar% {
     neighbors <- order(dist.mat[,i])
     neighbors <- neighbors[2:(k + 1)]
-    neighbor.names <- rownames(dist.mat)[neighbors]
-    pANN[i,1] <- length(grep("X", neighbor.names)) / k
+    neighbor.names <- cells_both[neighbors]
+    length(grep("^Doublet\\d*$", neighbor.names)) / k
   }
-
+  registerDoParallel(old_ncores)
   ## Step 7: Add results to column attributes of the original loom object
   doublet_inds <- order(pANN$pANN, decreasing = TRUE)[1:expected.doublets]
   pANN$pANNPredictions[doublet_inds] <- "Doublet"

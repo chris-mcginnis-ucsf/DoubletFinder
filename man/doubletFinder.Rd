@@ -13,7 +13,8 @@ doubletFinder(obj, ...)
 
 \method{doubletFinder}{loom}(obj, expected.doublets = 0,
   proportion.artificial = 0.25, proportion.NN = 0.01,
-  doublet.block.size = 50, gene.names = "row_attrs/gene_names",
+  doublet.block.size = 50, ncores = 1,
+  gene.names = "row_attrs/gene_names",
   cell.names = "col_attrs/cell_names", overwrite = FALSE,
   pcs.compute = 55, chunk.size = 1000, chunk.dims = c(256, 256), ...)
 }
@@ -38,6 +39,8 @@ Murrow and Gartner 2018, BioRxiv).}
 
 \item{doublet.block.size}{Number of doublets to add at a time, so not to contain the entire
 doublet matrix in memory in case there are many doublets.}
+
+\item{ncores}{Number of cores to use}
 
 \item{gene.names}{Dataset name in loom object for gene names; duplicates are not allowed.}
 
