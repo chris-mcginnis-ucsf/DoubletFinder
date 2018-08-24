@@ -207,8 +207,10 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
   loom_wdoublets[[cell.names]][] <- cells_both
   # Free up memory
   rm(doublet_mat)
-  gc(verbose = FALSE)
+  obj$flush()
+  loom_wdoublets$flush()
   hdf5r::h5garbage_collect()
+  gc(verbose = FALSE)
   ## Step 2: Pre-process real-artificial merged data using Seurat
   print("Normalizing Seurat object...")
   Seurat::NormalizeData(loom_wdoublets, overwrite = TRUE,

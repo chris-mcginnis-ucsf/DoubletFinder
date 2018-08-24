@@ -128,18 +128,20 @@ add_col_attrs_lt <- function(obj, n_cells, attributes.data) {
         obj[["col_attrs"]][[i]][,dims.fill] <- attributes.data[[i]]
       } else {
         this_attr <- obj[["col_attrs"]][[i]][,]
-        this_attr <- list(cbind(this_attr, attributes.data[[i]]))
+        this_attr <- cbind(this_attr, attributes.data[[i]])
         names(this_attr) <- i
-        obj$add.col.attribute(this_attr, overwrite = TRUE)
+        obj[["col_attrs"]]$link_delete(name = i)
+        obj[["col_attrs"]][[i]] <- this_attr
       }
     } else {
       if (is.infinite(obj[["col_attrs"]][[i]]$maxdims)) {
         obj[['col_attrs']][[i]][dims.fill] <- attributes.data[[i]]
       } else {
         this_attr <- obj[["col_attrs"]][[i]][]
-        this_attr <- list(c(this_attr, attributes.data[[i]]))
+        this_attr <- c(this_attr, attributes.data[[i]])
         names(this_attr) <- i
-        obj$add.col.attribute(this_attr, overwrite = TRUE)
+        obj[["col_attrs"]]$link_delete(name = i)
+        obj[["col_attrs"]][[i]] <- this_attr
       }
     }
     counter <- counter + 1
