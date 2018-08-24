@@ -109,6 +109,7 @@ doubletFinder.seurat <- function(obj, expected.doublets = 0, proportion.artifici
 }
 
 #' @importFrom progress progress_bar
+#' @importFrom parallelDist parDist
 NULL
 #'
 #' @param doublet.block.size Number of doublets to add at a time, so not to contain the entire
@@ -177,7 +178,7 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
                              do.transpose = FALSE, display.progress = FALSE)
   } else {
     n_chunks <- floor(n_doublets / doublet.block.size) # the last chunk is added separately
-    pb <- progress::progress_bar$new(format = "|:bar| :percent :eta")
+    pb <- progress::progress_bar$new(format = "|:bar| :percent :eta :elapsed")
     for (i in 1:n_chunks) {
       ind1 <- 1 + (i - 1) * doublet.block.size
       ind2 <- i * doublet.block.size
@@ -238,7 +239,7 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
   # This will be loaded into memory; since the number of PCs computed is small,
   # this shouldn't be too bad
   pca.coord <- t(loom_wdoublets$col.attrs$pca_cell_embeddings[,])
-  dist.mat <- as.matrix(dist(pca.coord))
+  dist.mat <- as.matrix(parallelDist::parDist(pca.coord))
   # Add column names
   colnames(dist.mat) <- rownames(dist.mat) <- cells_both
   dist.mat <- dist.mat[,-grep("X", colnames(dist.mat))]

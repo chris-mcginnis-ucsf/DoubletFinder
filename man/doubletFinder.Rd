@@ -13,9 +13,9 @@ doubletFinder(obj, ...)
 
 \method{doubletFinder}{loom}(obj, expected.doublets = 0,
   proportion.artificial = 0.25, proportion.NN = 0.01,
-  gene.names = "row_attrs/gene_names",
+  doublet.block.size = 50, gene.names = "row_attrs/gene_names",
   cell.names = "col_attrs/cell_names", overwrite = FALSE,
-  pcs.compute = 5, chunk.dims = NULL, chunk.size = NULL, ...)
+  pcs.compute = 55, chunk.size = 1000, chunk.dims = c(256, 256), ...)
 }
 \arguments{
 \item{obj}{A fully-processed Seurat or loom object (i.e. after normalization, variable gene definition,
@@ -36,6 +36,9 @@ Default is set to 25\%, based on optimization on PBMCs (see McGinnis, Murrow and
 each cell's neighborhood in PC space. Default set to 1\%, based on optimization on PBMCs (see McGinnis,
 Murrow and Gartner 2018, BioRxiv).}
 
+\item{doublet.block.size}{Number of doublets to add at a time, so not to contain the entire
+doublet matrix in memory in case there are many doublets.}
+
 \item{gene.names}{Dataset name in loom object for gene names; duplicates are not allowed.}
 
 \item{cell.names}{Dataset name in loom object for cell names; duplicates are not allowed.}
@@ -46,9 +49,9 @@ doublets.}
 \item{pcs.compute}{Number of principal components to compute to determine distance between
 cells.}
 
-\item{chunk.dims}{Matrix chunk dimensions; auto-determined by default.}
+\item{chunk.size}{Chunk size to iterate over}
 
-\item{chunk.size}{Maximum number of cells read/written to disk at once; auto-determined by default}
+\item{chunk.dims}{HDF5 chunk dimensions}
 }
 \value{
 An updated Seurat object with metadata for pANN values and doublet predictions.
