@@ -69,3 +69,83 @@ extend_col_attrs <- function(n_cells, obj, cell.names = "cell_names") {
   res[[cell.names]] <- paste0("X", 1:n_cells)
   res
 }
+
+#' Add cells while bypassing checks
+#'
+#' The \code{add.cells} method of \code{loom} class does a lot of checks on the dimensions of
+#' data for cells to be added to a \code{loom} object. However, here, while I do need to add cells,
+#' I already know the dimensions and that they work, so I can bypass the checks and save some time,
+#' which can be a lot if there are many iterations.
+#' Here I assume that the matrices will not be transposed. This function is basically a lightweight
+#' version of the method \code{loom}.
+#'
+#' @param obj The \code{loom} object to which cells are to be added.
+#' @param n_cells Number of cells to be added; the dimensions of the data are assumed to be
+#' compatible with this number.
+#' @param matrix.data A Matrix with \code{n_cells} rows and as many columns as there're genes;
+#' data for new cells to be added to the \code{matrix} dataset of the \code{loom} object.
+#' @param layers.data A named list of matrices with the same dimension as \code{matrix.data}
+#' for layer data for the new cells.
+#'
+add_cells_lt <- function(obj, n_cells, matrix.data, layers.data) {
+  dims.fill <- obj[['matrix']]$dims[1]
+  dims.fill <- (dims.fill + 1L):(dims.fill + n_cells)
+  # Add matrix data
+  obj[['matrix']][dims.fill, ] <- matrix.data
+  # Add layers
+  layers.names <- names(x = obj[['layers']])
+  for (i in layers.names) {
+    obj[['layers']][[i]][dims.fill, ] <- layers.data[[i]]
+  }
+}
+
+#' @importFrom progress progress_bar
+NULL
+
+#' Add column attributes for all the added cells
+#'
+#' In case there are many column attributes, and many chunks of new cells to be added, iterating
+#' over all those attributes for each chunk would be very inefficient. This function adds the
+#' column attributes to the new cells after they have all been added to the \code{loom} object.
+#'
+#' @param obj The \code{loom} object to which cells are to be added.
+#' @param n_cells Number of cells to be added; the dimensions of the data are assumed to be
+#' compatible with this number.
+#' @param attributes.data A named list of matrices (with \code{n_cells} columns) or vectors
+#' (with length \code{n_cells}) for column attributes for the new cells.
+#'
+add_col_attrs_lt <- function(obj, n_cells, attributes.data) {
+  n_tot <- obj[['matrix']]$dims[1]
+  dims.fill <- (n_tot - n_cells + 1):n_tot
+  # Add column attributes
+  attrs.names <- names(x = obj[['col_attrs']])
+  matrices <- vapply(attributes.data, is.matrix, FUN.VALUE = logical(1L))
+  pb <- progress_bar$new(format = "|:bar| :percent :eta :elapsed")
+  counter <- 0; tot <- length(attributes.data)
+  for (i in attrs.names) {
+    if (matrices[i]) {
+      if (is.infinite(obj[["col_attrs"]][[i]]$maxdims[2])) {
+        obj[["col_attrs"]][[i]][,dims.fill] <- attributes.data[[i]]
+      } else {
+        this_attr <- obj[["col_attrs"]][[i]][,]
+        this_attr <- list(cbind(this_attr, attributes.data[[i]]))
+        names(this_attr) <- i
+        obj$add.col.attribute(this_attr, overwrite = TRUE)
+      }
+    } else {
+      if (is.infinite(obj[["col_attrs"]][[i]]$maxdims)) {
+        obj[['col_attrs']][[i]][dims.fill] <- attributes.data[[i]]
+      } else {
+        this_attr <- obj[["col_attrs"]][[i]][]
+        this_attr <- list(c(this_attr, attributes.data[[i]]))
+        names(this_attr) <- i
+        obj$add.col.attribute(this_attr, overwrite = TRUE)
+      }
+    }
+    counter <- counter + 1
+    pb$update(counter / tot)
+  }
+  pb$terminate()
+  # Update shape
+  obj$update.shape()
+}

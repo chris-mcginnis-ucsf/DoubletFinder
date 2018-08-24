@@ -175,10 +175,9 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
     doublet_mat <-
       (obj[["matrix"]][real_ind1,] + obj[["matrix"]][real_ind2,]) / 2
     doublet_attrs <- extend_col_attrs(n_doublets, loom_wdoublets, cell.names = cn)
-    loom_wdoublets$add.cells(matrix.data = doublet_mat,
-                             attributes.data = doublet_attrs,
-                             layers.data = list(norm_data = doublet_mat, scale_data = doublet_mat),
-                             do.transpose = FALSE, display.progress = FALSE)
+    add_cells_lt(loom_wdoublets, n_cells = n_doublets,matrix.data = doublet_mat,
+                 layers.data = list(norm_data = doublet_mat, scale_data = doublet_mat))
+    add_col_attrs_lt(loom_wdoublets, n_cells = n_doublets,attributes.data = doublet_attrs)
   } else {
     n_chunks <- floor(n_doublets / doublet.block.size) # the last chunk is added separately
     pb <- progress::progress_bar$new(format = "|:bar| :percent :eta :elapsed")
@@ -187,25 +186,23 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
       ind2 <- i * doublet.block.size
       doublet_mat <-
         (obj[["matrix"]][real_ind1[ind1:ind2],] + obj[["matrix"]][real_ind2[ind1:ind2],]) / 2
-      doublet_attrs <- extend_col_attrs(doublet.block.size, loom_wdoublets, cell.names = cn)
-      loom_wdoublets$add.cells(matrix.data = doublet_mat,
-                               attributes.data = doublet_attrs,
-                               layers.data = list(norm_data = doublet_mat, scale_data = doublet_mat),
-                               do.transpose = FALSE, display.progress = FALSE)
+      add_cells_lt(loom_wdoublets, n_cells = doublet.block.size, matrix.data = doublet_mat,
+                   layers.data = list(norm_data = doublet_mat, scale_data = doublet_mat))
       pb$update(i / (n_chunks + 1))
     }
     remainder <- n_doublets %% doublet.block.size
     if (remainder > 0) {
       doublet_mat <-
         (obj[["matrix"]][real_ind1[(ind2 + 1):n_doublets],] + obj[["matrix"]][real_ind2[(ind2 + 1):n_doublets],]) / 2
-      doublet_attrs <- extend_col_attrs(remainder, loom_wdoublets, cell.names = cn)
-      loom_wdoublets$add.cells(matrix.data = doublet_mat,
-                               attributes.data = doublet_attrs,
-                               layers.data = list(norm_data = doublet_mat, scale_data = doublet_mat),
-                               do.transpose = FALSE, display.progress = FALSE)
+      add_cells_lt(loom_wdoublets, n_cells = remainder, matrix.data = doublet_mat,
+                   layers.data = list(norm_data = doublet_mat, scale_data = doublet_mat))
       pb$update(1)
     }
     pb$terminate()
+    # Add column attributes for the new cells
+    print("Adding column attributes for artificial doublets")
+    doublet_attrs <- extend_col_attrs(n_doublets, obj, cell.names = cn)
+    add_col_attrs_lt(loom_wdoublets, n_cells = n_doublets, attributes.data = doublet_attrs)
   }
   loom_wdoublets[[cell.names]][] <- cells_both
   # Free up memory
