@@ -242,6 +242,7 @@ doubletFinder.loom <- function(obj, expected.doublets = 0,
   dist.mat <- as.matrix(parallelDist::parDist(pca.coord))
   # Add column names
   colnames(dist.mat) <- rownames(dist.mat) <- cells_both
+  browser()
   dist.mat <- dist.mat[,-grep("X", colnames(dist.mat))]
 
   ## Step 5: Initialize pANN structure
