@@ -20,12 +20,13 @@ devtools::install_github('chris-mcginnis-ucsf/doubletFinder')
 ## Dependencies
 
 DoubletFinder requires the following R packages: 
-Seurat (>= 2.0)
-Matrix (1.2.14) 
-fields (9.6) 
-KernSmooth (...)
-modes (...)
-ROCR (1.0-7)
+* Seurat (>= 2.0) 
+* Matrix (1.2.14) 
+* fields (9.6) 
+* KernSmooth (2.23-15)
+* modes (0.7.0)
+* ROCR (1.0-7)
+* NOTE: These package versions were used in the bioRxiv paper, but other versions may work, as well.
 
 # DoubletFinder Overview
 
@@ -80,13 +81,49 @@ To maximize the accuracy of DoubletFinder predictions, we sought a ground-truth-
 
 BCmvn distributions also feature a single maximum for scRNA-seq datasets generated without sample-multiplexing (e.g., Mouse pancreas, Byrnes et al., 2018, Nature Communcations; Mouse kidney, Park et al., 2018, Science), enabling pK selection.
 
-
 ## Doublet Number Estimation
 
-DoubletFinder is sensitive to heterotypic doublets -- i.e., doublets formed from transcriptionally-distinct cell states -- but is insensitive to homotypic doublets -- i.e., doublets formed from transcriptionally-similar cell states. In our original manuscript, we suggested using DoubletFinder to predict 'n' doublets, where 'n' is the number of doublets expected according to Poisson statistical estimates from the cell loading density. However, Poisson estimates are agnostic of gene expression state, and will thus invariably overestimate the number of detectable doublets.
+DoubletFinder is sensitive to heterotypic doublets -- i.e., doublets formed from transcriptionally-distinct cell states -- but is insensitive to homotypic doublets -- i.e., doublets formed from transcriptionally-similar cell states. In our original manuscript, we suggested using DoubletFinder to predict the number of doublets expected from Poisson statistical estimates realting to the droplet microfluidics cell loading density. However, Poisson estimates are agnostic of homotypic doublets, and will thus invariably overestimate the number of *detectable* doublets.
 
-To address this issue, we suggest users utilize literature-supported cell type annotations to model the proportion of homotypic doublets present in their data. As an example, we present an analysis of mouse kidney scRNA-seq data (Park et al., 2018, Science)
+To address this issue, we suggest users utilize literature-supported cell type annotations to model the proportion of homotypic doublets present in their data. As an example, we present an analysis of mouse kidney scRNA-seq data (Park et al., 2018, Science):
 
+![alternativetext](DF.screenshots/HomotypicAdjustment.png)
+
+Notably, it is conceivable that literature-suppoted cell type annotations may not accurately recapitulate the magnitude of transcriptional divergence necessary for DoubletFinder sensitivity. For example, nominally-homogenous cells (e.g., CD4+ T-cells) may exist along a spectrum of gene expression states (e.g., distinct anatomical locations, disease states, naive/Tregs/Th17 cells, etc.), and doublets formed by cell sub-types may be detectable by DoubletFinder. Thus, we consider doublet number estimates based on Poisson statistics with and without homotypic doublet proportion adjustment to 'bookend' the real detectable doublet rate. 
+
+## Example code for 'real-world' applications
+
+```R
+## Pre-process Seurat object -------------------------------------------------------------------------------------------------
+seu_kidney <- CreateSeuratObject(kidney.data)
+seu_kidney <- NormalizeData(seu_kidney)
+seu_kidney <- ScaleData(seu_kidney, vars.to.regress = "nUMI")
+seu_kidney <- FindVariableGenes(seu_kidney, x.low.cutoff = 0.0125, y.cutoff = 0.25, do.plot=FALSE)
+seu_kidney <- RunPCA(seu_kidney, pc.genes = seu_kidney@var.genes, pcs.print = 0)
+seu_kidney <- RunTSNE(seu_kidney, dims.use = 1:10, verbose=TRUE)
+
+## pK Identification ---------------------------------------------------------------------------------------------------------
+sweep.res.list_kidney <- doubletFinder_ParamSweep(seu_kidney)
+sweep.stats_kidney <- summarizeSweep(sweep.res.list_kidney, GT = FALSE)
+bcmvn_kidney <- find.pK(sweep.stats_kidney)
+
+## Homotypic Doublet Proportion Estimate -------------------------------------------------------------------------------------
+homotypic.prop <- modelHomotypic(annotations)
+nExp_poi <- round(0.075*length(seu_kidney@cell.names))
+nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
+
+## Run DoubletFinder with varying classification stringencies ----------------------------------------------------------------
+seu_kidney <- doubletFinder(seu_kidney, pN = 0.25, pK = 0.09, nExp = nExp_poi, reuse.pANN = FALSE)
+seu_kidney <- doubletFinder(seu_kidney, pN = 0.25, pK = 0.09, nExp = nExp_poi.adj, reuse.pANN = "pANN_0.25_0.09_913")
+
+## Plot results --------------------------------------------------------------------------------------------------------------
+seu_kidney@meta.data[,"DF_hi.lo"] <- seu_kidney@meta.data$DF.classifications_0.25_0.09_913
+seu_kidney@meta.data$DF_hi.lo[which(seu_kidney@meta.data$DF_hi.lo == "Doublet" & seu_kidney@meta.data$DF.classifications_0.25_0.09_473 == "Singlet")] <- "Doublet_lo"
+seu_kidney@meta.data$DF_hi.lo[which(seu_kidney@meta.data$DF_hi.lo == "Doublet")] <- "Doublet_hi"
+TSNEPlot(seu_kidney, group.by="DF_hi.lo", plot.order=c("Doublet_hi","Doublet_lo","Singlet"), colors.use=c("black","gold","red"))
+```
+
+![alternativetext](DF.screenshots/DFkidney_low.vs.high.png)
 
 ## References
 
