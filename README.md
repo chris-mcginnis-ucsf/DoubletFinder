@@ -125,6 +125,10 @@ TSNEPlot(seu_kidney, group.by="DF_hi.lo", plot.order=c("Doublet_hi","Doublet_lo"
 
 ![alternativetext](DF.screenshots/DFkidney_low.vs.high.png)
 
+## Other Doublet Detection Methods
+[Scrublet](https://github.com/AllonKleinLab/scrublet)
+[DoubletDecon](https://github.com/EDePasquale/DoubletDecon)
+[DoubletDetection](https://github.com/JonathanShor/DoubletDetection)
 ## References
 
 1.	Stoeckius M, Zheng S, Houck-Loomis B, Hao S, Yeung BZ, Smibert P, Satija R. Cell "hashing" with barcoded antibodies enables multiplexing and doublet detection for single cell genomics. 2017. Preprint. bioRxiv doi: 10.1101/237693.
