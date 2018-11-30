@@ -15,7 +15,7 @@ New Features:
 
 ## Installation (in R/RStudio)
 
-devtools::install_github('chris-mcginnis-ucsf/doubletFinder')
+devtools::install_github('chris-mcginnis-ucsf/DoubletFinder')
 
 ## Dependencies
 
