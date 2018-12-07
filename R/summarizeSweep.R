@@ -6,22 +6,22 @@ summarizeSweep <- function(sweep.list, GT = FALSE, GT.calls = NULL) {
   
   ## Initialize data structure w/ or w/o AUC column, depending on whether ground-truth doublet classifications are available
   if (GT == TRUE) {
-    sweep.stats <- as.data.frame(matrix(0L, nrow=length(sweep.res.list), ncol=4))
+    sweep.stats <- as.data.frame(matrix(0L, nrow=length(sweep.list), ncol=4))
     colnames(sweep.stats) <- c("pN","pK","AUC","BCreal")
     sweep.stats$pN <- factor(rep(pN, each=length(pK), levels = pN))
     sweep.stats$pK <- factor(rep(pK, length(pN),levels = pK))
   }  
   
   if (GT == FALSE) {
-    sweep.stats <- as.data.frame(matrix(0L, nrow=length(sweep.res.list), ncol=3))
+    sweep.stats <- as.data.frame(matrix(0L, nrow=length(sweep.list), ncol=3))
     colnames(sweep.stats) <- c("pN","pK","BCreal")
     sweep.stats$pN <- factor(rep(pN, each=length(pK), levels = pN))
     sweep.stats$pK <- factor(rep(pK, length(pN),levels = pK))
   }
   
   ## Perform pN-pK parameter sweep summary
-  for (i in 1:length(sweep.res.list)) {
-    res.temp <- sweep.res.list[[i]]
+  for (i in 1:length(sweep.list)) {
+    res.temp <- sweep.list[[i]]
 
     ## Use gaussian kernel density estimation of pANN vector to compute bimodality coefficient
     gkde <- approxfun(bkde(res.temp$pANN, kernel="normal"))
