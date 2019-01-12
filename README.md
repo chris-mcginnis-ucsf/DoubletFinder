@@ -6,6 +6,11 @@ DoubletFinder is implemented to interface with Seurat >= 2.0 (https://satijalab.
 
 For more information, check out our preprint (https://www.biorxiv.org/content/early/2018/06/20/352484)
 
+
+## Updates
+
+(1/12/2019) Seurat V3 compatibility: 'doubletFinder_V3' and 'paramSweep_V3' functions added, other functions for parameter estimation remain compatible.  
+
 ## DoubletFinder V2.0 (11/28/2018) 
 
 New Features:
@@ -137,7 +142,7 @@ TSNEPlot(seu_kidney, group.by="DF_hi.lo", plot.order=c("Doublet_hi","Doublet_lo"
 
 3.  Wolock SL, Lopez R, Klein AM. Scrublet: computational identification of cell doublets in single-cell transcriptomic data. bioRxiv doi: 10.1101/357368.
 
-4.  Park J, Shrestha R, Qiu C, Kondo A, Huang S, Werth M, Li M, Barasch J, Suszták K. Single-cell transcriptomics of the mouse kidney reveals potential cellular targets of kidney disease. Science. 2018; 360(6390):758-63.
+4.  Park J, Shrestha R, Qiu C, Kondo A, Huang S, Werth M, Li M, Barasch J, Suszták K. Single-cell transcriptomics of the mouse kidney reveals potential cellular targets of kidney disease. Science. 2018; 360(6390):758-63.
 
 5.  Byrnes LE, Wong DM, Subramaniam M, Meyer NP, Gilchrist CL, Knox SM, Tward AD, Ye CJ, Sneddon JB. Lineage dynamics of murine pancreatic development at single-cell resolution. Nat Commun. 2018; 9:3922.
 
