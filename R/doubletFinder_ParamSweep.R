@@ -1,4 +1,4 @@
-doubletFinder_ParamSweep <- function(seu) {
+paramSweep <- function(seu) {
   require(Seurat); require(fields)
   ## Set pN-pK param sweep ranges
   pK <- c(0.0005, 0.001, 0.005, seq(0.01,0.3,by=0.01))
