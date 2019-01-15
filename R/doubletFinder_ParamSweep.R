@@ -6,7 +6,7 @@ paramSweep <- function(seu) {
   
   sweep.res.list <- list()
   list.ind <- 0
-  PCs <- seu@calc.params$RunTSNE$dims.use
+  PCs <- seu@calc.params[[names(seu@calc.params)[grep("FindClusters", names(seu@calc.params))[1]]]]$dims.use
   
   ## Down-sample cells to 10000 (when applicable) for computational effiency
   if (length(seu@cell.names) > 10000) {
