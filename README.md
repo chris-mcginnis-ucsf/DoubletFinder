@@ -108,7 +108,7 @@ seu_kidney <- RunPCA(seu_kidney, pc.genes = seu_kidney@var.genes, pcs.print = 0)
 seu_kidney <- RunTSNE(seu_kidney, dims.use = 1:10, verbose=TRUE)
 
 ## pK Identification ---------------------------------------------------------------------------------------------------------
-sweep.res.list_kidney <- doubletFinder_ParamSweep(seu_kidney)
+sweep.res.list_kidney <- paramSweep(seu_kidney)
 sweep.stats_kidney <- summarizeSweep(sweep.res.list_kidney, GT = FALSE)
 bcmvn_kidney <- find.pK(sweep.stats_kidney)
 
