@@ -9,15 +9,15 @@ paramSweep <- function(seu) {
   PCs <- seu@calc.params[[names(seu@calc.params)[grep("FindClusters", names(seu@calc.params))[1]]]]$dims.use
   
   ## Down-sample cells to 10000 (when applicable) for computational effiency
-  if (length(seu@cell.names) > 10000) {
-    real.cells <- seu@cell.names[sample(1:nrow(seu@meta.data), 10000, replace=FALSE)]
+  if (ncol(seu@data) > 10000) {
+    real.cells <- colnames(seu@data)[sample(1:ncol(seu@data), 10000, replace=FALSE)]
     data <- seu@raw.data[ , real.cells]
     n.real.cells <- ncol(data)
   }
   
-  if (length(seu@cell.names) <= 10000){
-    real.cells <- seu@cell.names
-    data <- seu@raw.data
+  if (ncol(seu@data) <= 10000){
+    real.cells <- colnames(seu@data)
+    data <- seu@raw.data[, real.cells]
     n.real.cells <- ncol(data)
   }
   
