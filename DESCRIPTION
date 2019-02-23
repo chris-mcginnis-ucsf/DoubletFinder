@@ -8,3 +8,9 @@ Description: DoubletFinder identifies doublets by generating artificial doublets
 License: CC-0
 Encoding: UTF-8
 LazyData: true
+Depends:
+  Seurat,
+  fields,
+  modes,
+  KernSmooth,
+  ROCR
