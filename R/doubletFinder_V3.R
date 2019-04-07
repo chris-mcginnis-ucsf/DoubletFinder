@@ -25,7 +25,7 @@ doubletFinder_v3 <- function(seu, pN = 0.25, pK, nExp, reuse.pANN = FALSE) {
     
     ## Store important pre-processing information
     orig.commands <- seu@commands
-    PCs <- seu@commands$RunTSNE.pca$dims
+    PCs <- seu@commands$RunTSNE$dims
     
     ## Pre-process Seurat object
     print("Creating Seurat object...")
