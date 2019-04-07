@@ -6,7 +6,7 @@ paramSweep_v3 <- function(seu) {
 
   sweep.res.list <- list()
   list.ind <- 0
-  PCs <- seu@commands$RunTSNE.pca$dims
+  PCs <- seu@commands$RunTSNE$dims
   orig.commands <- seu@commands
 
   ## Down-sample cells to 10000 (when applicable) for computational effiency
