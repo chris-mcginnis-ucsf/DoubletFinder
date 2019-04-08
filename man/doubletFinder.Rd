@@ -48,3 +48,4 @@ seu <- doubletFinder(seu, pN = 0.25, pK = 0.01, nExp = nExp_poi, reuse.pANN = FA
 homotypic.prop <- modelHomotypic(annotations)
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 seu <- doubletFinder(seu, pN = 0.25, pK = 0.01, nExp = nExp_poi.adj, reuse.pANN = "pANN_0.25_0.01_1000")
+}
