@@ -4,12 +4,13 @@ DoubletFinder is an R package that predicts doublets in single-cell RNA sequenci
 
 DoubletFinder is implemented to interface with Seurat >= 2.0 (https://satijalab.org/seurat/) 
 
-For more information, check out our preprint (https://www.biorxiv.org/content/early/2018/06/20/352484)
-
+DoubletFinder was published by Cell Systems in April, 2019: https://www.cell.com/cell-systems/fulltext/S2405-4712(19)30073-0
 
 ## Updates
 
-(1/12/2019) Seurat V3 compatibility: 'doubletFinder_V3' and 'paramSweep_V3' functions added, other functions for parameter estimation remain compatible.  
+(04/08/2019) Added 'PCs' argument to 'doubletFinder', 'doubletFinder_V3', 'paramSweep', and 'paramSweep_V3' to avoid conflicts with dimension reduction preferences. Updated readme.
+
+(01/12/2019) Seurat V3 compatibility: 'doubletFinder_V3' and 'paramSweep_V3' functions added, other functions for parameter estimation remain compatible.  
 
 ## DoubletFinder V2.0 (11/28/2018) 
 
