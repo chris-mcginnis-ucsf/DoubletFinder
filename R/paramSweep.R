@@ -1,29 +1,28 @@
-paramSweep <- function(seu) {
+paramSweep <- function(seu, PCs) {
   require(Seurat); require(fields)
   ## Set pN-pK param sweep ranges
   pK <- c(0.0005, 0.001, 0.005, seq(0.01,0.3,by=0.01))
   pN <- seq(0.05,0.3,by=0.05)
-  
+
   sweep.res.list <- list()
   list.ind <- 0
-  PCs <- seu@calc.params[[names(seu@calc.params)[grep("FindClusters", names(seu@calc.params))[1]]]]$dims.use
-  
+
   ## Down-sample cells to 10000 (when applicable) for computational effiency
   if (ncol(seu@data) > 10000) {
     real.cells <- colnames(seu@data)[sample(1:ncol(seu@data), 10000, replace=FALSE)]
     data <- seu@raw.data[ , real.cells]
     n.real.cells <- ncol(data)
   }
-  
+
   if (ncol(seu@data) <= 10000){
     real.cells <- colnames(seu@data)
     data <- seu@raw.data[, real.cells]
     n.real.cells <- ncol(data)
   }
-  
+
   ## Iterate through pN, computing pANN vectors at varying pK
   for (n in 1:length(pN)) {
-    
+
     ## Make merged real-artifical data
     print(paste("Creating artificial doublets for pN = ", pN[n]*100,"%",sep=""))
     n_doublets <- round(n.real.cells/(1 - pN[n]) - n.real.cells)
@@ -34,31 +33,31 @@ paramSweep <- function(seu) {
     data_wdoublets <- cbind(data, doublets)
 
     ## Pre-process Seurat object
-    print("Creating Seurat object...")    
+    print("Creating Seurat object...")
     seu_wdoublets <- CreateSeuratObject(raw.data = data_wdoublets)
-  
+
     print("Normalizing Seurat object...")
-    seu_wdoublets <- NormalizeData(seu_wdoublets, 
-                                   normalization.method = seu@calc.params$NormalizeData$normalization.method, 
+    seu_wdoublets <- NormalizeData(seu_wdoublets,
+                                   normalization.method = seu@calc.params$NormalizeData$normalization.method,
                                    scale.factor = seu@calc.params$NormalizeData$scale.factor)
-  
+
     print("Finding variable genes...")
-    seu_wdoublets <- FindVariableGenes(seu_wdoublets, 
-                                       do.plot = FALSE, 
-                                       x.low.cutoff = seu@calc.params$FindVariableGenes$x.low.cutoff, 
-                                       x.high.cutoff = seu@calc.params$FindVariableGenes$x.high.cutoff, 
-                                       y.high.cutoff = seu@calc.params$FindVariableGenes$y.high.cutoff, 
+    seu_wdoublets <- FindVariableGenes(seu_wdoublets,
+                                       do.plot = FALSE,
+                                       x.low.cutoff = seu@calc.params$FindVariableGenes$x.low.cutoff,
+                                       x.high.cutoff = seu@calc.params$FindVariableGenes$x.high.cutoff,
+                                       y.high.cutoff = seu@calc.params$FindVariableGenes$y.high.cutoff,
                                        y.cutoff = seu@calc.params$FindVariableGenes$y.cutoff)
-  
+
     print("Scaling data...")
     seu_wdoublets <- ScaleData(seu_wdoublets, display.progress = TRUE)
-  
+
     print("Running PCA...")
-    seu_wdoublets <- RunPCA(seu_wdoublets, 
-                            pc.genes = seu_wdoublets@var.genes, 
-                            pcs.print = 0, 
+    seu_wdoublets <- RunPCA(seu_wdoublets,
+                            pc.genes = seu_wdoublets@var.genes,
+                            pcs.print = 0,
                             pcs.compute = length(PCs))
-    
+
     ## Compute PC distance matrix
     print("Calculating PC distance matrix...")
     nCells <- length(seu_wdoublets@cell.names)
@@ -66,17 +65,17 @@ paramSweep <- function(seu) {
     rm(seu_wdoublets)
     gc()
     dist.mat <- fields::rdist(pca.coord)[,1:n.real.cells]
-    
+
     ## Pre-order PC distance matrix prior to iterating across pK for pANN computations
     print("Defining neighborhoods...")
-    for (i in 1:n.real.cells) { 
-      dist.mat[,i] <- order(dist.mat[,i]) 
+    for (i in 1:n.real.cells) {
+      dist.mat[,i] <- order(dist.mat[,i])
     }
-    
+
     ## Trim PC distance matrix for faster manipulations
     ind <- round(nCells * max(pK))+5
     dist.mat <- dist.mat[1:ind, ]
-  
+
     ## Compute pANN across pK sweep
     print("Computing pANN across all pK...")
     for (k in 1:length(pK)) {
@@ -91,7 +90,7 @@ paramSweep <- function(seu) {
         neighbors <- dist.mat[2:(pk.temp + 1),i]
         pANN$pANN[i] <- length(which(neighbors > n.real.cells))/pk.temp
       }
-    
+
       sweep.res.list[[list.ind]] <- pANN
 
     }
@@ -99,15 +98,10 @@ paramSweep <- function(seu) {
 
   ## Assign names to list of results
   name.vec <- NULL
-  for (j in 1:length(pN)) { 
-    name.vec <- c(name.vec, paste("pN", pN[j], "pK", pK, sep = "_" )) 
+  for (j in 1:length(pN)) {
+    name.vec <- c(name.vec, paste("pN", pN[j], "pK", pK, sep = "_" ))
   }
   names(sweep.res.list) <- name.vec
   return(sweep.res.list)
-  
+
 }
-
-
-
-
-
