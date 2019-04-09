@@ -62,7 +62,7 @@ doubletFinder_v3 <- function(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE) 
     print("Running PCA...")
     seu_wdoublets <- RunPCA(seu_wdoublets,
                             features = orig.commands$ScaleData.RNA$features,
-                            npcs = PCs,
+                            npcs = length(PCs),
                             rev.pca =  orig.commands$RunPCA.RNA$rev.pca,
                             weight.by.var = orig.commands$RunPCA.RNA$weight.by.var,
                             verbose=FALSE)
