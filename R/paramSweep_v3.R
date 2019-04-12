@@ -86,10 +86,6 @@ paramSweep_v3 <- function(seu, PCs, sct = FALSE) {
 
       print("Running PCA...")
       seu_wdoublets <- RunPCA(seu_wdoublets)
-      pca.coord <- seu_wdoublets@reductions$pca@cell.embeddings[ , PCs]
-      cell.names <- rownames(seu_wdoublets@meta.data)
-      nCells <- length(cell.names)
-      rm(seu_wdoublets); gc()
     }
 
     ## Compute PC distance matrix
