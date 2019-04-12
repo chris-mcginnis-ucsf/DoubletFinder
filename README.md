@@ -8,6 +8,7 @@ DoubletFinder was published by Cell Systems in April, 2019: https://www.cell.com
 
 ## Updates
 
+(04/12/2019) Added SCTransform compatibilities to 'paramSweep_v3' and 'doubletFinder_v3'
 (04/08/2019) Added 'PCs' argument to 'doubletFinder', 'doubletFinder_v3', 'paramSweep', and 'paramSweep_v3' to avoid conflicts with dimension reduction preferences. Updated readme.
 
 (01/12/2019) Seurat V3 compatibility: 'doubletFinder_v3' and 'paramSweep_v3' functions added, other functions for parameter estimation remain compatible.  
