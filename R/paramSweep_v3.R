@@ -82,7 +82,7 @@ paramSweep_v3 <- function(seu, PCs, sct = FALSE) {
       seu_wdoublets <- CreateSeuratObject(counts = data_wdoublets)
 
       print("Running SCTransform...")
-      seu_wdoublets <- seu_isc_rz <- SCTransform(seu_isc_rz)
+      seu_wdoublets <- SCTransform(seu_wdoublets)
 
       print("Running PCA...")
       seu_wdoublets <- RunPCA(seu_wdoublets)
