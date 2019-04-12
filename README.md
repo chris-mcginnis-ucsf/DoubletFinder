@@ -52,7 +52,9 @@ DoubletFinder takes the following arguments:
 
 seu ~ This is a fully-processed Seurat object (i.e., after NormalizeData, FindVariableGenes, ScaleData, RunPCA, and RunTSNE have all been run).
 
-pN ~ This defines the number of generated artificial doublets, expressed as a proportion of the merged real-artificial data. Default is set to 25%, based on observation that DoubletFinder performance is largely pN-invariant (see McGinnis, Murrow and Gartner 2018, BioRxiv).
+PCs ~ The number of statistically-significant principal components, specified as a range (e.g., PCs = 1:10)
+
+pN ~ This defines the number of generated artificial doublets, expressed as a proportion of the merged real-artificial data. Default is set to 25%, based on observation that DoubletFinder performance is largely pN-invariant (see McGinnis, Murrow and Gartner 2019, Cell Systems).
 
 pK ~ This defines the PC neighborhood size used to compute pANN, expressed as a proportion of the merged real-artificial data. No default is set, as pK should be adjusted for each scRNA-seq dataset. Optimal pK values should be estimated using the strategy described below.
 
@@ -74,7 +76,7 @@ ROC analysis across pN-pK parameter sweeps for Cell Hashing and Demuxlet dataset
 ![alternativetext](DF.screenshots/ParamSweep_Schematic.png)
 ![alternativetext](DF.screenshots/ParamSweep_HeatMap.png)
 
-ROC analysis across pN-pK parameter sweeps for simulated scRNA-seq data with (I) Variable numbers of cell states and (II) Variable magnitudes of transcriptional heterogeneity demonstrates that (I) Optimal pK value selection depends on the total number of cell states and (II) DoubletFinder performance suffers when applied to transcriptionally-homogenous data. Simulated data was generated using a strategy similar to as described in Wolock, Lopex & Klein, 2018.
+ROC analysis across pN-pK parameter sweeps for simulated scRNA-seq data with (I) Variable numbers of cell states and (II) Variable magnitudes of transcriptional heterogeneity demonstrates that (I) Optimal pK value selection depends on the total number of cell states and (II) DoubletFinder performance suffers when applied to transcriptionally-homogenous data. Simulated data was generated using a strategy similar to as described in Wolock, Lopex & Klein 2019, Cell Systems.
 
 ![alternativetext](DF.screenshots/Simulation_Schematic.png)
 ![alternativetext](DF.screenshots/Results_Simulation.png)
@@ -109,7 +111,7 @@ seu_kidney <- RunPCA(seu_kidney, pc.genes = seu_kidney@var.genes, pcs.print = 0)
 seu_kidney <- RunTSNE(seu_kidney, dims.use = 1:10, verbose=TRUE)
 
 ## pK Identification ---------------------------------------------------------------------------------------------------------
-sweep.res.list_kidney <- paramSweep(seu_kidney)
+sweep.res.list_kidney <- paramSweep(seu_kidney, PCs = 1:10)
 sweep.stats_kidney <- summarizeSweep(sweep.res.list_kidney, GT = FALSE)
 bcmvn_kidney <- find.pK(sweep.stats_kidney)
 
@@ -119,8 +121,8 @@ nExp_poi <- round(0.075*length(seu_kidney@cell.names))  ## Assuming 7.5% doublet
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 
 ## Run DoubletFinder with varying classification stringencies ----------------------------------------------------------------
-seu_kidney <- doubletFinder(seu_kidney, pN = 0.25, pK = 0.09, nExp = nExp_poi, reuse.pANN = FALSE)
-seu_kidney <- doubletFinder(seu_kidney, pN = 0.25, pK = 0.09, nExp = nExp_poi.adj, reuse.pANN = "pANN_0.25_0.09_913")
+seu_kidney <- doubletFinder(seu_kidney, PCs = 1:10, pN = 0.25, pK = 0.09, nExp = nExp_poi, reuse.pANN = FALSE)
+seu_kidney <- doubletFinder(seu_kidney, PCs = 1:10, pN = 0.25, pK = 0.09, nExp = nExp_poi.adj, reuse.pANN = "pANN_0.25_0.09_913")
 
 ## Plot results --------------------------------------------------------------------------------------------------------------
 seu_kidney@meta.data[,"DF_hi.lo"] <- seu_kidney@meta.data$DF.classifications_0.25_0.09_913
