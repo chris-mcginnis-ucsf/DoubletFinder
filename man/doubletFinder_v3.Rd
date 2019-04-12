@@ -5,7 +5,7 @@
 Core doublet prediction function of the DoubletFinder package. Generates artifical doublets from an existing, pre-processed Seurat object. Real and artificial data are then merged and pre-processed using parameters utilized for the existing Seurat object. PC distance matrix is then computed and used the measure the proportion of artificial nearest neighbors (pANN) for every real cell. pANN is then thresholded according to the number of expected doublets to generate final doublet predictions.
 }
 \usage{
-doubletFinder_V3(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE)
+doubletFinder_V3(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, sct = FALSE)
 }
 \arguments{
   \item{seu}{ A fully-processed Seurat object (i.e., After NormalizeData, FindVariableGenes, ScaleData, and RunPCA have all been performed).
@@ -19,6 +19,8 @@ doubletFinder_V3(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE)
   \item{nExp}{ The total number of doublet predictions produced. This value can best be estimated from cell loading densities into the 10X/Drop-Seq device, and adjusted according to the estimated proportion of homotypic doublets.
   }
   \item{reuse.pANN}{ Seurat metadata column name for previously-generated pANN results. Argument should be set to FALSE (default) for initial DoubletFinder runs. Enables fast adjusting of doublet predictions for different nExp.
+  }
+  \item{sct}{ Logical representing whether SCTransform was used during original Seurat object pre-processing (default = FALSE).
   }
 }
 \details{
@@ -43,10 +45,10 @@ doubletFinder_V3(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE)
 \examples{
 ## Initial run, nExp set to 0.15 Poisson loading estimate (e.g., 1000 total doublet predictions)
 nExp_poi <- round(0.15*nrow(seu@meta.data))
-seu <- doubletFinder_v3(seu, PCs = 1:10, pN = 0.25, pK = 0.01, nExp = nExp_poi, reuse.pANN = FALSE)
+seu <- doubletFinder_v3(seu, PCs = 1:10, pN = 0.25, pK = 0.01, nExp = nExp_poi, reuse.pANN = FALSE, sct=FALSE)
 
 ## With homotypic adjustment
 homotypic.prop <- modelHomotypic(annotations)
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
-seu <- doubletFinder_v3(seu, PCs = 1:10, pN = 0.25, pK = 0.01, nExp = nExp_poi.adj, reuse.pANN = "pANN_0.25_0.01_1000")
+seu <- doubletFinder_v3(seu, PCs = 1:10, pN = 0.25, pK = 0.01, nExp = nExp_poi.adj, reuse.pANN = "pANN_0.25_0.01_1000", sct=FALSE)
 }

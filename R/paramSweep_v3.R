@@ -1,4 +1,4 @@
-paramSweep_v3 <- function(seu, PCs) {
+paramSweep_v3 <- function(seu, PCs, sct = FALSE) {
   #require(Seurat); require(fields)
   ## Set pN-pK param sweep ranges
   pK <- c(0.0005, 0.001, 0.005, seq(0.01,0.3,by=0.01))
@@ -34,45 +34,63 @@ paramSweep_v3 <- function(seu, PCs) {
     data_wdoublets <- cbind(data, doublets)
 
     ## Pre-process Seurat object
-    print("Creating Seurat object...")
-    seu_wdoublets <- CreateSeuratObject(counts = data_wdoublets)
+    if (sct == FALSE) {
+      print("Creating Seurat object...")
+      seu_wdoublets <- CreateSeuratObject(counts = data_wdoublets)
 
-    print("Normalizing Seurat object...")
-    seu_wdoublets <- NormalizeData(seu_wdoublets,
-                                   normalization.method = orig.commands$NormalizeData.RNA@params$normalization.method,
-                                   scale.factor = orig.commands$NormalizeData.RNA@params$scale.factor,
-                                   margin = orig.commands$NormalizeData.RNA@params$margin)
+      print("Normalizing Seurat object...")
+      seu_wdoublets <- NormalizeData(seu_wdoublets,
+                                     normalization.method = orig.commands$NormalizeData.RNA@params$normalization.method,
+                                     scale.factor = orig.commands$NormalizeData.RNA@params$scale.factor,
+                                     margin = orig.commands$NormalizeData.RNA@params$margin)
 
-    print("Finding variable genes...")
-    seu_wdoublets <- FindVariableFeatures(seu_wdoublets,
-                                          selection.method = orig.commands$FindVariableFeatures.RNA$selection.method,
-                                          loess.span = orig.commands$FindVariableFeatures.RNA$loess.span,
-                                          clip.max = orig.commands$FindVariableFeatures.RNA$clip.max,
-                                          mean.function = orig.commands$FindVariableFeatures.RNA$mean.function,
-                                          dispersion.function = orig.commands$FindVariableFeatures.RNA$dispersion.function,
-                                          num.bin = orig.commands$FindVariableFeatures.RNA$num.bin,
-                                          binning.method = orig.commands$FindVariableFeatures.RNA$binning.method,
-                                          nfeatures = orig.commands$FindVariableFeatures.RNA$nfeatures,
-                                          mean.cutoff = orig.commands$FindVariableFeatures.RNA$mean.cutoff,
-                                          dispersion.cutoff = orig.commands$FindVariableFeatures.RNA$dispersion.cutoff)
+      print("Finding variable genes...")
+      seu_wdoublets <- FindVariableFeatures(seu_wdoublets,
+                                            selection.method = orig.commands$FindVariableFeatures.RNA$selection.method,
+                                            loess.span = orig.commands$FindVariableFeatures.RNA$loess.span,
+                                            clip.max = orig.commands$FindVariableFeatures.RNA$clip.max,
+                                            mean.function = orig.commands$FindVariableFeatures.RNA$mean.function,
+                                            dispersion.function = orig.commands$FindVariableFeatures.RNA$dispersion.function,
+                                            num.bin = orig.commands$FindVariableFeatures.RNA$num.bin,
+                                            binning.method = orig.commands$FindVariableFeatures.RNA$binning.method,
+                                            nfeatures = orig.commands$FindVariableFeatures.RNA$nfeatures,
+                                            mean.cutoff = orig.commands$FindVariableFeatures.RNA$mean.cutoff,
+                                            dispersion.cutoff = orig.commands$FindVariableFeatures.RNA$dispersion.cutoff)
 
-    print("Scaling data...")
-    seu_wdoublets <- ScaleData(seu_wdoublets,
-                               features = orig.commands$ScaleData.RNA$features,
-                               model.use = orig.commands$ScaleData.RNA$model.use,
-                               do.scale = orig.commands$ScaleData.RNA$do.scale,
-                               do.center = orig.commands$ScaleData.RNA$do.center,
-                               scale.max = orig.commands$ScaleData.RNA$scale.max,
-                               block.size = orig.commands$ScaleData.RNA$block.size,
-                               min.cells.to.block = orig.commands$ScaleData.RNA$min.cells.to.block)
+      print("Scaling data...")
+      seu_wdoublets <- ScaleData(seu_wdoublets,
+                                 features = orig.commands$ScaleData.RNA$features,
+                                 model.use = orig.commands$ScaleData.RNA$model.use,
+                                 do.scale = orig.commands$ScaleData.RNA$do.scale,
+                                 do.center = orig.commands$ScaleData.RNA$do.center,
+                                 scale.max = orig.commands$ScaleData.RNA$scale.max,
+                                 block.size = orig.commands$ScaleData.RNA$block.size,
+                                 min.cells.to.block = orig.commands$ScaleData.RNA$min.cells.to.block)
 
-    print("Running PCA...")
-    seu_wdoublets <- RunPCA(seu_wdoublets,
-                            features = orig.commands$ScaleData.RNA$features,
-                            npcs = length(PCs),
-                            rev.pca =  orig.commands$RunPCA.RNA$rev.pca,
-                            weight.by.var = orig.commands$RunPCA.RNA$weight.by.var,
-                            verbose=FALSE)
+      print("Running PCA...")
+      seu_wdoublets <- RunPCA(seu_wdoublets,
+                              features = orig.commands$ScaleData.RNA$features,
+                              npcs = length(PCs),
+                              rev.pca =  orig.commands$RunPCA.RNA$rev.pca,
+                              weight.by.var = orig.commands$RunPCA.RNA$weight.by.var,
+                              verbose=FALSE)
+    }
+
+    if (sct == TRUE) {
+      require(SCTransform)
+      print("Creating Seurat object...")
+      seu_wdoublets <- CreateSeuratObject(counts = data_wdoublets)
+
+      print("Running SCTransform...")
+      seu_wdoublets <- seu_isc_rz <- SCTransform(seu_isc_rz)
+
+      print("Running PCA...")
+      seu_wdoublets <- RunPCA(seu_wdoublets)
+      pca.coord <- seu_wdoublets@reductions$pca@cell.embeddings[ , PCs]
+      cell.names <- rownames(seu_wdoublets@meta.data)
+      nCells <- length(cell.names)
+      rm(seu_wdoublets); gc()
+    }
 
     ## Compute PC distance matrix
     print("Calculating PC distance matrix...")
