@@ -77,7 +77,7 @@ paramSweep_v3 <- function(seu, PCs, sct = FALSE) {
     }
 
     if (sct == TRUE) {
-      require(SCTransform)
+      require(sctransform)
       print("Creating Seurat object...")
       seu_wdoublets <- CreateSeuratObject(counts = data_wdoublets)
 
