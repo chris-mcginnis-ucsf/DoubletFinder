@@ -111,6 +111,7 @@ paramSweep_v3 <- function(seu, PCs, sct = FALSE) {
     for (k in 1:length(pK)) {
       print(paste("pK = ", pK[k], "...", sep = ""))
       pk.temp <- round(nCells * pK[k])
+      if(pk.temp==0){stop("pk.temp is zero. Either increase the number of cells in the dataset (to over 2000) or increase the minimum value of pK tested")}
       pANN <- as.data.frame(matrix(0L, nrow = n.real.cells, ncol = 1))
       colnames(pANN) <- "pANN"
       rownames(pANN) <- real.cells
