@@ -85,7 +85,7 @@ paramSweep_v3 <- function(seu, PCs, sct = FALSE) {
       seu_wdoublets <- SCTransform(seu_wdoublets)
 
       print("Running PCA...")
-      seu_wdoublets <- RunPCA(seu_wdoublets)
+      seu_wdoublets <- RunPCA(seu_wdoublets, npcs = length(PCs))
     }
 
     ## Compute PC distance matrix
