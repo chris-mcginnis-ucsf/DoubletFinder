@@ -8,6 +8,7 @@ DoubletFinder was published by Cell Systems in April, 2019: https://www.cell.com
 
 ## Updates
 
+(06/21/2019) Added parallelization to paramSweep_v3 (thanks NathanSkeen!) -- Note: progress no longer updated, but the process is much faster! Fixed bug with smaller datasets. Updated readme.
 (04/12/2019) Added SCTransform compatibilities to 'paramSweep_v3' and 'doubletFinder_v3'
 (04/08/2019) Added 'PCs' argument to 'doubletFinder', 'doubletFinder_v3', 'paramSweep', and 'paramSweep_v3' to avoid conflicts with dimension reduction preferences. Updated readme.
 
@@ -33,6 +34,7 @@ DoubletFinder requires the following R packages:
 * KernSmooth (2.23-15)
 * modes (0.7.0)
 * ROCR (1.0-7)
+* parallel (3.5.1)
 * NOTE: These package versions were used in the bioRxiv paper, but other versions may work, as well.
 
 # DoubletFinder Overview
@@ -113,17 +115,29 @@ Notably, it is conceivable that literature-suppoted cell type annotations may no
 ## Example code for 'real-world' applications
 
 ```R
-## Pre-process Seurat object -------------------------------------------------------------------------------------------------
+## Pre-process Seurat object (standard) --------------------------------------------------------------------------------------
 seu_kidney <- CreateSeuratObject(kidney.data)
 seu_kidney <- NormalizeData(seu_kidney)
-seu_kidney <- ScaleData(seu_kidney, vars.to.regress = "nUMI")
-seu_kidney <- FindVariableGenes(seu_kidney, x.low.cutoff = 0.0125, y.cutoff = 0.25, do.plot=FALSE)
-seu_kidney <- RunPCA(seu_kidney, pc.genes = seu_kidney@var.genes, pcs.print = 0)
-seu_kidney <- RunTSNE(seu_kidney, dims.use = 1:10, verbose=TRUE)
+seu_kidney <- ScaleData(seu_kidney)
+seu_kidney <- FindVariableFeatures(seu_kidney, selection.method = "vst", nfeatures = 2000)
+seu_kidney <- RunPCA(seu_kidney)
+seu_kidney <- RunUMAP(seu_kidney, dims = 1:10)
 
-## pK Identification ---------------------------------------------------------------------------------------------------------
-sweep.res.list_kidney <- paramSweep(seu_kidney, PCs = 1:10)
+## Pre-process Seurat object (sctransform) -----------------------------------------------------------------------------------
+seu_kidney <- CreateSeuratObject(kidney.data)
+seu_kidney <- SCTransform(seu_kidney)
+seu_kidney <- RunPCA(seu_kidney)
+seu_kidney <- RunUMAP(seu_kidney, dims = 1:10)
+
+## pK Identification (no ground-truth) ---------------------------------------------------------------------------------------
+sweep.res.list_kidney <- paramSweep_v3(seu_kidney, PCs = 1:10, sct = FALSE)
 sweep.stats_kidney <- summarizeSweep(sweep.res.list_kidney, GT = FALSE)
+bcmvn_kidney <- find.pK(sweep.stats_kidney)
+
+## pK Identification (ground-truth) ------------------------------------------------------------------------------------------
+sweep.res.list_kidney <- paramSweep_v3(seu_kidney, PCs = 1:10, sct = FALSE)
+gt.calls <- seu_kidney@meta.data[rownames(sweep.res.list_kidney[[1]]), "GT"]
+sweep.stats_kidney <- summarizeSweep(sweep.res.list_kidney, GT = TRUE, GT.calls = gt.calls)
 bcmvn_kidney <- find.pK(sweep.stats_kidney)
 
 ## Homotypic Doublet Proportion Estimate -------------------------------------------------------------------------------------
@@ -132,14 +146,8 @@ nExp_poi <- round(0.075*length(seu_kidney@cell.names))  ## Assuming 7.5% doublet
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 
 ## Run DoubletFinder with varying classification stringencies ----------------------------------------------------------------
-seu_kidney <- doubletFinder(seu_kidney, PCs = 1:10, pN = 0.25, pK = 0.09, nExp = nExp_poi, reuse.pANN = FALSE)
-seu_kidney <- doubletFinder(seu_kidney, PCs = 1:10, pN = 0.25, pK = 0.09, nExp = nExp_poi.adj, reuse.pANN = "pANN_0.25_0.09_913")
-
-## Plot results --------------------------------------------------------------------------------------------------------------
-seu_kidney@meta.data[,"DF_hi.lo"] <- seu_kidney@meta.data$DF.classifications_0.25_0.09_913
-seu_kidney@meta.data$DF_hi.lo[which(seu_kidney@meta.data$DF_hi.lo == "Doublet" & seu_kidney@meta.data$DF.classifications_0.25_0.09_473 == "Singlet")] <- "Doublet_lo"
-seu_kidney@meta.data$DF_hi.lo[which(seu_kidney@meta.data$DF_hi.lo == "Doublet")] <- "Doublet_hi"
-TSNEPlot(seu_kidney, group.by="DF_hi.lo", plot.order=c("Doublet_hi","Doublet_lo","Singlet"), colors.use=c("black","gold","red"))
+seu_kidney <- doubletFinder_v3(seu_kidney, PCs = 1:10, pN = 0.25, pK = 0.09, nExp = nExp_poi, reuse.pANN = FALSE, sct = FALSE)
+seu_kidney <- doubletFinder_v3(seu_kidney, PCs = 1:10, pN = 0.25, pK = 0.09, nExp = nExp_poi.adj, reuse.pANN = "pANN_0.25_0.09_913", sct = FALSE)
 ```
 
 ![alternativetext](DF.screenshots/DFkidney_low.vs.high.png)
@@ -150,11 +158,11 @@ TSNEPlot(seu_kidney, group.by="DF_hi.lo", plot.order=c("Doublet_hi","Doublet_lo"
 [DoubletDetection](https://github.com/JonathanShor/DoubletDetection)
 ## References
 
-1.	Stoeckius M, Zheng S, Houck-Loomis B, Hao S, Yeung BZ, Smibert P, Satija R. Cell "hashing" with barcoded antibodies enables multiplexing and doublet detection for single cell genomics. 2017. Preprint. bioRxiv doi: 10.1101/237693.
+1.	Stoeckius M, Zheng S, Houck-Loomis B, Hao S, Yeung BZ, Smibert P, Satija R. Cell Hashing with barcoded antibodies enables multiplexing and doublet detection for single cell genomics. Genome Biol. 2018. 19:224.
 
 2.  Kang HM, Subramaniam M, Targ S, Nguyen M, Maliskova L, McCarthy E, Wan E, Wong S, Byrnes L, Lanata CM, Gate RE, Mostafavi S, Marson A, Zaitlen N, Criswell LA, Ye JC. Multiplexed droplet single-cell RNA-sequencing using natural genetic variation. Nat Biotechnol. 2018; 36(1):89-94. 
 
-3.  Wolock SL, Lopez R, Klein AM. Scrublet: computational identification of cell doublets in single-cell transcriptomic data. bioRxiv doi: 10.1101/357368.
+3.  Wolock SL, Lopez R, Klein AM. Scrublet: Computational Identification of Cell Doublets in Single-Cell Transcriptomic Data. Cell Syst. 2019. 8(4):281-291.e9.
 
 4.  Park J, Shrestha R, Qiu C, Kondo A, Huang S, Werth M, Li M, Barasch J, Suszták K. Single-cell transcriptomics of the mouse kidney reveals potential cellular targets of kidney disease. Science. 2018; 360(6390):758-63.
 
