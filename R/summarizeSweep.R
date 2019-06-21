@@ -1,8 +1,12 @@
 summarizeSweep <- function(sweep.list, GT = FALSE, GT.calls = NULL) {
   require(KernSmooth); require(ROCR); require(modes)
   ## Set pN-pK param sweep ranges
-  pK <- c(0.0005, 0.001, 0.005, seq(0.01,0.3,by=0.01))
-  pN <- seq(0.05,0.3,by=0.05)
+  name.vec <- names(sweep.list)
+  name.vec <- unlist(strsplit(name.vec, split="pN_"))
+  name.vec <- name.vec[seq(2, length(name.vec), by=2)]
+  name.vec <- unlist(strsplit(name.vec, split="_pK_"))
+  pN <- as.numeric(unique(name.vec[seq(1, length(name.vec), by=2)]))
+  pK <- as.numeric(unique(name.vec[seq(2, length(name.vec), by=2)]))
 
   ## Initialize data structure w/ or w/o AUC column, depending on whether ground-truth doublet classifications are available
   if (GT == TRUE) {

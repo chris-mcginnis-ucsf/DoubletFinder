@@ -12,7 +12,7 @@ doubletFinder_V3(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, sct = FALSE)
   }
   \item{PCs}{ Number of statistically-significant principal components (e.g., as estimated from PC elbow plot)
   }
-  \item{pN}{ The number of generated artificial doublets, expressed as a proportion of the merged real-artificial data. Default is set to 0.25, based on observation that DoubletFinder performance is largely pN-invariant (see McGinnis, Murrow and Gartner 2018, bioRxiv).
+  \item{pN}{ The number of generated artificial doublets, expressed as a proportion of the merged real-artificial data. Default is set to 0.25, based on observation that DoubletFinder performance is largely pN-invariant (see McGinnis, Murrow and Gartner 2019, Cell Systems).
   }
   \item{pK}{ The PC neighborhood size used to compute pANN, expressed as a proportion of the merged real-artificial data. No default is set, as pK should be adjusted for each scRNA-seq dataset. Optimal pK values can be determined using mean-variance-normalized bimodality coefficient.
   }
