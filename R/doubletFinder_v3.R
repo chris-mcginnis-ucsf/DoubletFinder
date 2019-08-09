@@ -82,7 +82,7 @@ doubletFinder_v3 <- function(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
       seu_wdoublets <- SCTransform(seu_wdoublets)
 
       print("Running PCA...")
-      seu_wdoublets <- RunPCA(seu_wdoublets)
+      seu_wdoublets <- RunPCA(seu_wdoublets, npcs = length(PCs))
       pca.coord <- seu_wdoublets@reductions$pca@cell.embeddings[ , PCs]
       cell.names <- rownames(seu_wdoublets@meta.data)
       nCells <- length(cell.names)

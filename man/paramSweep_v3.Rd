@@ -14,6 +14,8 @@ sweep.list <- paramSweep_v3(seu, PCs, sct=FALSE)
   }
   \item{sct}{ Logical representing whether SCTransform was used during original Seurat object pre-processing (default = FALSE).
   }
+  \item{num.cores}{ Number of cores to use for parallelization, default=1.
+  }
 }
 \details{
 }
