@@ -1,4 +1,4 @@
-# DoubletFinder
+# DoubletFinder (code written by Chris McGinnis)
 
 DoubletFinder is an R package that predicts doublets in single-cell RNA sequencing data. 
 
