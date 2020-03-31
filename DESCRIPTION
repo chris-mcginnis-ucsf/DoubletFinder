@@ -3,7 +3,7 @@ Type: Package
 Title: DoubletFinder is a suite of tools for identifying doublets in single-cell RNA sequencing data.
 Version: 2.0.2
 Author: person("Chris", "McGinnis", email = "chris.mcginnis@ucsf.edu", role = c("aut","cre"))
-Imports: fields, modes, KernSmooth, ROCR, parallel
+Imports: fields, Seurat, KernSmooth, ROCR, parallel
 Maintainer: <chris.mcginnis@ucsf.edu>
 Description: DoubletFinder identifies doublets by generating artificial doublets from existing scRNA-seq data and defining which real cells preferentially co-localize with artificial doublets in gene expression space.    Other DoubletFinder package functions are used for fitting DoubletFinder to different scRNA-seq datasets. For example, ideal DoubletFinder performance in real-world contexts requires (I) Optimal pK selection and (2) Homotypic doublet proportion estimation. pK selection is achieved using pN-pK parameter sweeps and maxima identification in mean-variance-normalized bimodality coefficient distributions. Homotypic doublet proportion estimation is achieved by finding the sum of squared cell annotation frequencies.    For more information, see our Cell Sysmtes paper https://www.cell.com/cell-systems/fulltext/S2405-4712(19)30073-0 and our github https://github.com/chris-mcginnis-ucsf/DoubletFinder
 License: CC-0
