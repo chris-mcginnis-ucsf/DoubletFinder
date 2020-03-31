@@ -1,5 +1,5 @@
 summarizeSweep <- function(sweep.list, GT = FALSE, GT.calls = NULL) {
-  require(KernSmooth); require(ROCR); require(modes)
+  require(KernSmooth); require(ROCR)
   ## Set pN-pK param sweep ranges
   name.vec <- names(sweep.list)
   name.vec <- unlist(strsplit(name.vec, split="pN_"))
