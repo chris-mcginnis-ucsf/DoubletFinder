@@ -8,6 +8,8 @@ DoubletFinder was published by Cell Systems in April, 2019: https://www.cell.com
 
 ## Updates
 
+(03/31/2020) Internalized functions normally in 'modes' package to enable compatibility with R v3.6 and highger.
+
 (06/21/2019) Added parallelization to paramSweep_v3 (thanks NathanSkeen!) -- Note: progress no longer updated, but the process is much faster! Fixed bug with smaller datasets. Updated readme.
 
 (04/12/2019) Added SCTransform compatibilities to 'paramSweep_v3' and 'doubletFinder_v3'
@@ -25,7 +27,7 @@ New Features:
 
 ## Installation (in R/RStudio)
 
-devtools::install_github('chris-mcginnis-ucsf/DoubletFinder')
+remotes::install_github('chris-mcginnis-ucsf/DoubletFinder')
 
 ## Dependencies
 
@@ -34,7 +36,6 @@ DoubletFinder requires the following R packages:
 * Matrix (1.2.14) 
 * fields (9.6) 
 * KernSmooth (2.23-15)
-* modes (0.7.0)
 * ROCR (1.0-7)
 * parallel (3.5.1)
 * NOTE: These package versions were used in the bioRxiv paper, but other versions may work, as well.
