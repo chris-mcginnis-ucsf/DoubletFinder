@@ -121,8 +121,8 @@ Notably, it is conceivable that literature-suppoted cell type annotations may no
 ## Pre-process Seurat object (standard) --------------------------------------------------------------------------------------
 seu_kidney <- CreateSeuratObject(kidney.data)
 seu_kidney <- NormalizeData(seu_kidney)
-seu_kidney <- ScaleData(seu_kidney)
 seu_kidney <- FindVariableFeatures(seu_kidney, selection.method = "vst", nfeatures = 2000)
+seu_kidney <- ScaleData(seu_kidney)
 seu_kidney <- RunPCA(seu_kidney)
 seu_kidney <- RunUMAP(seu_kidney, dims = 1:10)
 
@@ -139,7 +139,7 @@ bcmvn_kidney <- find.pK(sweep.stats_kidney)
 
 ## pK Identification (ground-truth) ------------------------------------------------------------------------------------------
 sweep.res.list_kidney <- paramSweep_v3(seu_kidney, PCs = 1:10, sct = FALSE)
-gt.calls <- seu_kidney@meta.data[rownames(sweep.res.list_kidney[[1]]), "GT"]
+gt.calls <- seu_kidney@meta.data[rownames(sweep.res.list_kidney[[1]]), "GT"].   ## GT is a vector containing "Singlet" and "Doublet" calls recorded using sample multiplexing classification and/or in silico geneotyping results 
 sweep.stats_kidney <- summarizeSweep(sweep.res.list_kidney, GT = TRUE, GT.calls = gt.calls)
 bcmvn_kidney <- find.pK(sweep.stats_kidney)
 
