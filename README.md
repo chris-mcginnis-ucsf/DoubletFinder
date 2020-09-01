@@ -145,7 +145,7 @@ bcmvn_kidney <- find.pK(sweep.stats_kidney)
 
 ## Homotypic Doublet Proportion Estimate -------------------------------------------------------------------------------------
 homotypic.prop <- modelHomotypic(annotations)           ## ex: annotations <- seu_kidney@meta.data$ClusteringResults
-nExp_poi <- round(0.075*length(seu_kidney@cell.names))  ## Assuming 7.5% doublet formation rate - tailor for your dataset
+nExp_poi <- round(0.075*nrow(seu_kidney@meta.data))  ## Assuming 7.5% doublet formation rate - tailor for your dataset
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 
 ## Run DoubletFinder with varying classification stringencies ----------------------------------------------------------------
