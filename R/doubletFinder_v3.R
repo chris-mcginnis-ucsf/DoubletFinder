@@ -113,5 +113,13 @@ doubletFinder_v3 <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALS
   classifications[order(pANN, decreasing=TRUE)[1:nExp]] <- "Doublet"
   object@meta.data[, paste("pANN",pN,pK,nExp,sep="_")] <- pANN[rownames(object@meta.data),1]
   object@meta.data[, paste("DF.classifications",pN,pK,nExp,sep="_")] <- classifications
+  
+  
+  if(get.neighbor.doublets) {
+    names(doublet.neighbors.list) <- real.cells
+    Tool(object) <- list(doublet.parents=data.frame(parent1=real.cells1, parent2=real.cells2),
+                         neighbor.doublets=doublet.neighbors.list)
+  }
+  object <- Seurat::LogSeuratCommand(object)
   return(object)
 }
