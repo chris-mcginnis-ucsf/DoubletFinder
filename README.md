@@ -1,5 +1,7 @@
 # DoubletFinder (code written by Chris McGinnis)
 
+NOTE: I (Chris McGinnis) do not check the issues very frequently (about once a month) so if you need help, feel free to reach out to me directly (chris.mcginnis@ucsf.edu)
+
 DoubletFinder is an R package that predicts doublets in single-cell RNA sequencing data. 
 
 DoubletFinder is implemented to interface with Seurat >= 2.0 (https://satijalab.org/seurat/) 
