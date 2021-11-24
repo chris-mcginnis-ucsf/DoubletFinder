@@ -1,6 +1,7 @@
-# DoubletFinder (code written by Chris McGinnis)
+~~ Announcement (11/24/21) ~~
+I'm now a postdoc at Stanford and my UCSF email will be decommissioned soon. I also only check my github repos about once per month, so please reach out directly at cmcginni@stanford[dot]edu if you run into any issues. 
 
-NOTE: I (Chris McGinnis) do not check the issues very frequently (about once a month) so if you need help, feel free to reach out to me directly (chris.mcginnis@ucsf.edu)
+# DoubletFinder (code written by Chris McGinnis)
 
 DoubletFinder is an R package that predicts doublets in single-cell RNA sequencing data. 
 
