@@ -113,14 +113,23 @@ doubletFinder_v3 <- function(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
     k <- round(nCells * pK)
     for (i in 1:n_real.cells) {
       neighbors <- order(dist.mat[, i])
+      cat("i: ", i, "\n")
+      cat(neighbors, "\n")
       neighbors <- neighbors[2:(k + 1)]
       pANN$pANN[i] <- length(which(neighbors > n_real.cells))/k
       if(!is.null(annotations)){
         for(ct in unique(annotations)){
-          neighbor_types[i,] <- 
-            table( doublet_types1[neighbors - n_real.cells] ) +
-            table( doublet_types2[neighbors - n_real.cells] )
-          neighbor_types[i,] <- neighbor_types[i,] / sum( neighbor_types[i,] )
+          cat(neighbors, "\n")
+          cat(n_real.cells, "\n")
+          neighbors_that_are_doublets = neighbors[neighbors>n_real.cells]
+          if(length(neighbors_that_are_doublets) > 0){
+            neighbor_types[i,] <-
+              table( doublet_types1[neighbors_that_are_doublets - n_real.cells] ) +
+              table( doublet_types2[neighbors_that_are_doublets - n_real.cells] )
+            neighbor_types[i,] <- neighbor_types[i,] / sum( neighbor_types[i,] )
+          } else {
+            neighbor_types[i,] <- NA
+          }
         }
       }
     }
@@ -133,7 +142,7 @@ doubletFinder_v3 <- function(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
     if(!is.null(annotations)){
       colnames(neighbor_types) = levels(doublet_types1)
       for(ct in levels(doublet_types1)){
-        seu@meta.data[, paste("DF.doublet.contributors",pN,pK,nExp,ct,sep="_")] <- neighbor_types[,ct] 
+        seu@meta.data[, paste("DF.doublet.contributors",pN,pK,nExp,ct,sep="_")] <- neighbor_types[,ct]
       }
     }
     return(seu)
