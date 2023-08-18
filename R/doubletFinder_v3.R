@@ -113,14 +113,10 @@ doubletFinder_v3 <- function(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
     k <- round(nCells * pK)
     for (i in 1:n_real.cells) {
       neighbors <- order(dist.mat[, i])
-      cat("i: ", i, "\n")
-      cat(neighbors, "\n")
       neighbors <- neighbors[2:(k + 1)]
       pANN$pANN[i] <- length(which(neighbors > n_real.cells))/k
       if(!is.null(annotations)){
         for(ct in unique(annotations)){
-          cat(neighbors, "\n")
-          cat(n_real.cells, "\n")
           neighbors_that_are_doublets = neighbors[neighbors>n_real.cells]
           if(length(neighbors_that_are_doublets) > 0){
             neighbor_types[i,] <-
@@ -133,7 +129,6 @@ doubletFinder_v3 <- function(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
         }
       }
     }
-
     print("Classifying doublets..")
     classifications <- rep("Singlet",n_real.cells)
     classifications[order(pANN$pANN[1:n_real.cells], decreasing=TRUE)[1:nExp]] <- "Doublet"
