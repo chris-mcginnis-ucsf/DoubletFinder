@@ -22,7 +22,7 @@ doubletFinder_V3(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, sct = FALSE,
   }
   \item{sct}{ Logical representing whether SCTransform was used during original Seurat object pre-processing (default = FALSE).
   }
-  \item{annotations}{Optional character vector of cell type annotations. If provided, this function will keep track of the type of each artificial doublet and will yield guesses for what types were combined to form each doublet that is called. (default = NULL).
+  \item{annotations}{Optional character vector of cell type annotations. If provided, this function will keep track of the type of each artificial doublet and will yield guesses for constituent cell types. Specifically, it returns the proportion of different constituent cell types across all the artificial doublets that each cell is similar to. (default = NULL). For cells with no artificial doublet neighbors, the guesses will be NA.
   }
 }
 \details{

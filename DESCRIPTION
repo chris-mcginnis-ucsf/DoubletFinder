@@ -9,3 +9,7 @@ Description: DoubletFinder identifies doublets by generating artificial doublets
 License: CC-0
 Encoding: UTF-8
 LazyData: true
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+RoxygenNote: 7.1.2
