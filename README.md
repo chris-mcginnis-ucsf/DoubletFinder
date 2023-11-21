@@ -11,6 +11,8 @@ DoubletFinder was published by Cell Systems in April, 2019: https://www.cell.com
 
 ## Updates
 
+(11/21/2023) Made compatible with Seurat v5 and removed '_v3' flag from relevant function names.
+
 (03/31/2020) Internalized functions normally in 'modes' package to enable compatibility with R v3.6 and highger.
 
 (06/21/2019) Added parallelization to paramSweep_v3 (thanks NathanSkeen!) -- Note: progress no longer updated, but the process is much faster! Fixed bug with smaller datasets. Updated readme.
@@ -136,12 +138,12 @@ seu_kidney <- RunPCA(seu_kidney)
 seu_kidney <- RunUMAP(seu_kidney, dims = 1:10)
 
 ## pK Identification (no ground-truth) ---------------------------------------------------------------------------------------
-sweep.res.list_kidney <- paramSweep_v3(seu_kidney, PCs = 1:10, sct = FALSE)
+sweep.res.list_kidney <- paramSweep(seu_kidney, PCs = 1:10, sct = FALSE)
 sweep.stats_kidney <- summarizeSweep(sweep.res.list_kidney, GT = FALSE)
 bcmvn_kidney <- find.pK(sweep.stats_kidney)
 
 ## pK Identification (ground-truth) ------------------------------------------------------------------------------------------
-sweep.res.list_kidney <- paramSweep_v3(seu_kidney, PCs = 1:10, sct = FALSE)
+sweep.res.list_kidney <- paramSweep(seu_kidney, PCs = 1:10, sct = FALSE)
 gt.calls <- seu_kidney@meta.data[rownames(sweep.res.list_kidney[[1]]), "GT"].   ## GT is a vector containing "Singlet" and "Doublet" calls recorded using sample multiplexing classification and/or in silico geneotyping results 
 sweep.stats_kidney <- summarizeSweep(sweep.res.list_kidney, GT = TRUE, GT.calls = gt.calls)
 bcmvn_kidney <- find.pK(sweep.stats_kidney)
@@ -152,8 +154,8 @@ nExp_poi <- round(0.075*nrow(seu_kidney@meta.data))  ## Assuming 7.5% doublet fo
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 
 ## Run DoubletFinder with varying classification stringencies ----------------------------------------------------------------
-seu_kidney <- doubletFinder_v3(seu_kidney, PCs = 1:10, pN = 0.25, pK = 0.09, nExp = nExp_poi, reuse.pANN = FALSE, sct = FALSE)
-seu_kidney <- doubletFinder_v3(seu_kidney, PCs = 1:10, pN = 0.25, pK = 0.09, nExp = nExp_poi.adj, reuse.pANN = "pANN_0.25_0.09_913", sct = FALSE)
+seu_kidney <- doubletFinder(seu_kidney, PCs = 1:10, pN = 0.25, pK = 0.09, nExp = nExp_poi, reuse.pANN = FALSE, sct = FALSE)
+seu_kidney <- doubletFinder(seu_kidney, PCs = 1:10, pN = 0.25, pK = 0.09, nExp = nExp_poi.adj, reuse.pANN = "pANN_0.25_0.09_913", sct = FALSE)
 ```
 
 ![alternativetext](DF.screenshots/DFkidney_low.vs.high.png)
