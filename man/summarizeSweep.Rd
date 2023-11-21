@@ -39,7 +39,7 @@ Dataframe with bimodality coefficient values at each pN-pK parameter set. If GT 
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-sweep.list <- doubletFinder_ParamSweep(seu)
+sweep.list <- paramSweep(seu)
 sweep.stats <- summarizeSweep(sweep.list, GT = FALSE)
 bcmvn <- find.pK(sweep.stats)
 }

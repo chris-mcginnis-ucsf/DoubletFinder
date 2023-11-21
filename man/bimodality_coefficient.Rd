@@ -16,7 +16,7 @@ bimodality_coefficient(x)
 \value{ Bimodality coefficient value
 }
 \references{
-Taken from the 'modes' R package (v0.7) to maintain DoubletFinder compatibility with R v3.6.1.
+Taken from the 'modes' R package (v0.7)
 }
 \author{
 %%  ~~who you are~~

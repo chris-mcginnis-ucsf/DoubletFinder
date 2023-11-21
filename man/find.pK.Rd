@@ -30,7 +30,7 @@ Dataframe of mean BC, BC variance, and BCmvn scores for each pK value. Includes 
 \seealso{
 }
 \examples{
-sweep.list <- doubletFinder_ParamSweep(seu)
+sweep.list <- paramSweep(seu)
 sweep.stats <- summarizeSweep(sweep.list, GT = FALSE)
 bcmvn <- find.pK(sweep.stats)
 }
