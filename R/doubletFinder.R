@@ -25,12 +25,21 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
   #   colnames(doublets) <- paste("X", 1:n_doublets, sep = "")
   #   data_wdoublets <- cbind(data, doublets)
 
+    data <- seu@assays$RNA@layers$counts ## M
+    colnames(data) <- colnames(seu) ## M
+    rownames(data) <- rownames(seu) ## M
+    data <- data[, real.cells] ## M
+
   ## Make merged real-artifical data
   real.cells <- rownames(object@meta.data)
-  data <- object@assays$RNA@counts[, real.cells]
+  # data <- object@assays$RNA@layers$data[, real.cells]
+    data <- object@assays$RNA@layers$counts ## M
+    colnames(data) <- colnames(object) ## M
+    rownames(data) <- rownames(object) ## M
+    data <- data[, real.cells] ## M
   n_real.cells <- length(real.cells)
   n_doublets <- round(n_real.cells/(1 - pN) - n_real.cells)
-  print(paste("Creating",n_doublets,"artificial doublets...",sep=" "))
+  print(paste("Patch: Creating",n_doublets,"artificial doublets...",sep=" "))
   if(!is.null(idents) & length(idents) != n_real.cells) {
     print(paste("Number of passed idents not as number of cells in object. Ignoring passed idents"))
     idents <- NULL
