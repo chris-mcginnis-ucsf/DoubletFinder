@@ -25,10 +25,10 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
   #   colnames(doublets) <- paste("X", 1:n_doublets, sep = "")
   #   data_wdoublets <- cbind(data, doublets)
 
-    data <- object@assays$RNA@layers$counts ## M
-    colnames(data) <- colnames(object) ## M
-    rownames(data) <- rownames(object) ## M
-    data <- data[, real.cells] ## M
+    # data <- object@assays$RNA@layers$counts ## M
+    # colnames(data) <- colnames(object) ## M
+    # rownames(data) <- rownames(object) ## M
+    # data <- data[, real.cells] ## M
 
   ## Make merged real-artifical data
   real.cells <- rownames(object@meta.data)
