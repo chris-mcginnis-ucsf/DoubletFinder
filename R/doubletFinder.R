@@ -82,6 +82,8 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
     }
   }
   rm(rc1, rc2)
+  gc()
+  Sys.sleep(10)
 
   doublets <- (data[, real.cells1] + data[, real.cells2])/2
   colnames(doublets) <- paste("X", 1:n_doublets, sep = "")
@@ -100,7 +102,10 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
                                    normalization.method = orig.commands$NormalizeData.RNA@params$normalization.method,
                                    scale.factor = orig.commands$NormalizeData.RNA@params$scale.factor,
                                    margin = orig.commands$NormalizeData.RNA@params$margin)
-    rm(seu_wdoublets); gc() # Free up memory
+    rm(seu_wdoublets); 
+    gc() # Free up memory
+    Sys.sleep(10)
+
     print("Finding variable genes...")
     seu_wdoublets2 <- FindVariableFeatures(seu_wdoublets1,
                                           selection.method = orig.commands$FindVariableFeatures.RNA$selection.method,
@@ -113,7 +118,10 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
                                           nfeatures = orig.commands$FindVariableFeatures.RNA$nfeatures,
                                           mean.cutoff = orig.commands$FindVariableFeatures.RNA$mean.cutoff,
                                           dispersion.cutoff = orig.commands$FindVariableFeatures.RNA$dispersion.cutoff)
-    rm(seu_wdoublets1); gc() # Free up memory
+    rm(seu_wdoublets1); 
+    gc() # Free up memory
+    Sys.sleep(10)
+
     print("Scaling data...")
     seu_wdoublets3 <- ScaleData(seu_wdoublets2,
                                features = orig.commands$ScaleData.RNA$features,
@@ -123,7 +131,10 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
                                scale.max = orig.commands$ScaleData.RNA$scale.max,
                                block.size = orig.commands$ScaleData.RNA$block.size,
                                min.cells.to.block = orig.commands$ScaleData.RNA$min.cells.to.block)
-    rm(seu_wdoublets2); gc() # Free up memory
+    rm(seu_wdoublets2); 
+    gc()
+    Sys.sleep(10) # Free up memory
+
     print("Running PCA...#1")
     seu_wdoublets4 <- RunPCA(seu_wdoublets3,
                             features = orig.commands$ScaleData.RNA$features,
@@ -131,11 +142,17 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
                             rev.pca =  orig.commands$RunPCA.RNA$rev.pca,
                             weight.by.var = orig.commands$RunPCA.RNA$weight.by.var,
                             verbose=FALSE)
-    rm(seu_wdoublets4); gc() # Free up memory
+    rm(seu_wdoublets3); 
+    gc() # Free up memory
+    Sys.sleep(10)
+
     pca.coord <- seu_wdoublets4@reductions$pca@cell.embeddings[ , PCs]
     cell.names <- rownames(seu_wdoublets4@meta.data)
     nCells <- length(cell.names)
-    rm(seu_wdoublets4); gc() # Free up memory
+    rm(seu_wdoublets4); 
+    gc() # Free up memory
+    Sys.sleep(10)
+
   } else {
     require(sctransform)
 
@@ -145,13 +162,25 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
     options(warn=-1)
     seu_wdoublets1 <- SCTransform(seu_wdoublets)
     options(warn=0)
-    rm(seu_wdoublets); gc()
+    
+    rm(seu_wdoublets); 
+    gc()
+    Sys.sleep(10)
+
     print("Running PCA...#2")
     seu_wdoublets2 <- RunPCA(seu_wdoublets1, npcs = length(PCs))
+    
+    rm(seu_wdoublets1)
+    gc()
+    Sys.sleep(10)
+ 
     pca.coord <- seu_wdoublets2@reductions$pca@cell.embeddings[ , PCs]
     cell.names <- rownames(seu_wdoublets2@meta.data)
     nCells <- length(cell.names)
-    rm(seu_wdoublets2); gc()
+    
+    rm(seu_wdoublets2); 
+    gc()
+    Sys.sleep(10)
   }
 
   # Compute pANN
@@ -170,9 +199,12 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
       ann <- neighbors[neighbors > n_real.cells]
       pANN[[i+j-1, 1]] <- length(ann)/k
       if(get.neighbor.doublets) doublet.neighbors.list[[i+j-1]] <- (ann - n_real.cells)
+      rm(neighbors,ann) gc()
     }
 
     rm(dists)
+    gc()
+    
     if(!is.infinite(batch.size))
       print(paste('Completed computing pANN for', round((max.i/n_real.cells)*100, 2) , '% of cells'))
   }
