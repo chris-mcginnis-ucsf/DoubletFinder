@@ -142,14 +142,14 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
                             rev.pca =  orig.commands$RunPCA.RNA$rev.pca,
                             weight.by.var = orig.commands$RunPCA.RNA$weight.by.var,
                             verbose=FALSE)
-    rm(seu_wdoublets3); 
-    gc() # Free up memory
-    Sys.sleep(10)
+    # rm(seu_wdoublets3); 
+    # gc() # Free up memory
+    # Sys.sleep(10)
 
     pca.coord <- seu_wdoublets4@reductions$pca@cell.embeddings[ , PCs]
     cell.names <- rownames(seu_wdoublets4@meta.data)
     nCells <- length(cell.names)
-    rm(seu_wdoublets4); 
+    # rm(seu_wdoublets4); 
     gc() # Free up memory
     Sys.sleep(10)
 
