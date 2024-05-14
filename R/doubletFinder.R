@@ -80,10 +80,11 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
       real.cells1 <- c(real.cells1, rc1[idents[rc1] != idents[rc2]])
       real.cells2 <- c(real.cells2, rc2[idents[rc1] != idents[rc2]])
     }
-  }
   rm(rc1, rc2)
   gc()
   Sys.sleep(10)
+  }
+
 
   doublets <- (data[, real.cells1] + data[, real.cells2])/2
   colnames(doublets) <- paste("X", 1:n_doublets, sep = "")
@@ -95,6 +96,8 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
   print("Creating Seurat object...")
   seu_wdoublets <- CreateSeuratObject(counts = cbind(data, doublets))
   rm(data, doublets)
+  gc() # Free up memory
+  Sys.sleep(10)
 
   if (!sct) {
     print("Normalizing Seurat object...")
@@ -105,7 +108,10 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
     # rm(seu_wdoublets); 
     gc() # Free up memory
     Sys.sleep(10)
-
+    print("===================================")
+    object.size(x=lapply(ls(), get)) 
+    print(object.size(x=lapply(ls(), get)), units="Mb") 
+    print("===================================")
     print("Finding variable genes...")
     seu_wdoublets <- FindVariableFeatures(seu_wdoublets,
                                           selection.method = orig.commands$FindVariableFeatures.RNA$selection.method,
@@ -121,7 +127,10 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
     # rm(seu_wdoublets); 
     gc() # Free up memory
     Sys.sleep(10)
-
+    print("===================================")
+    object.size(x=lapply(ls(), get)) 
+    print(object.size(x=lapply(ls(), get)), units="Mb") 
+    print("===================================")
     print("Scaling data...")
     seu_wdoublets <- ScaleData(seu_wdoublets,
                                features = orig.commands$ScaleData.RNA$features,
@@ -134,7 +143,10 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
     # rm(seu_wdoublets2); 
     gc()
     Sys.sleep(10) # Free up memory
-
+    print("===================================")
+    object.size(x=lapply(ls(), get)) 
+    print(object.size(x=lapply(ls(), get)), units="Mb") 
+    print("===================================")
     print("Running PCA...#1")
     seu_wdoublets <- RunPCA(seu_wdoublets,
                             features = orig.commands$ScaleData.RNA$features,
@@ -145,7 +157,10 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
     # rm(seu_wdoublets3); 
     # gc() # Free up memory
     # Sys.sleep(10)
-
+    print("===================================")
+    object.size(x=lapply(ls(), get)) 
+    print(object.size(x=lapply(ls(), get)), units="Mb") 
+    print("===================================")
     pca.coord <- seu_wdoublets@reductions$pca@cell.embeddings[ , PCs]
     cell.names <- rownames(seu_wdoublets@meta.data)
     nCells <- length(cell.names)
