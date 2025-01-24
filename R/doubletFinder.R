@@ -2,18 +2,21 @@ doubletFinder <- function(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, sct
   require(Seurat); require(fields); require(KernSmooth)
 
   ## Generate new list of doublet classificatons from existing pANN vector to save time
-  if (reuse.pANN != FALSE ) {
+  if (reuse.pANN) {
     pANN.old <- seu@meta.data[ , reuse.pANN]
     classifications <- rep("Singlet", length(pANN.old))
     classifications[order(pANN.old, decreasing=TRUE)[1:nExp]] <- "Doublet"
     seu@meta.data[, paste("DF.classifications",pN,pK,nExp,sep="_")] <- classifications
     return(seu)
-  }
-
-  if (reuse.pANN == FALSE) {
+  } else {
     ## Make merged real-artifical data
     real.cells <- rownames(seu@meta.data)
-    data <- seu@assays$RNA$counts[, real.cells]
+    if (SeuratObject::Version(seu)>= '5.0') {
+         counts <- LayerData(seu, assay = "RNA", layer = "counts")
+    } else {
+         counts <- GetAssayData(object = seu, assay = "RNA", slot = "counts")
+    }
+    data <- counts[, real.cells]
     n_real.cells <- length(real.cells)
     n_doublets <- round(n_real.cells/(1 - pN) - n_real.cells)
     print(paste("Creating",n_doublets,"artificial doublets...",sep=" "))
@@ -36,7 +39,7 @@ doubletFinder <- function(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, sct
     orig.commands <- seu@commands
 
     ## Pre-process Seurat object
-    if (sct == FALSE) {
+    if (!sct) {
       print("Creating Seurat object...")
       seu_wdoublets <- CreateSeuratObject(counts = data_wdoublets)
 
@@ -80,9 +83,7 @@ doubletFinder <- function(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, sct
       cell.names <- rownames(seu_wdoublets@meta.data)
       nCells <- length(cell.names)
       rm(seu_wdoublets); gc() # Free up memory
-    }
-
-    if (sct == TRUE) {
+    } else {
       require(sctransform)
       print("Creating Seurat object...")
       seu_wdoublets <- CreateSeuratObject(counts = data_wdoublets)
