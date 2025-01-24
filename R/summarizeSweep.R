@@ -9,14 +9,12 @@ summarizeSweep <- function(sweep.list, GT = FALSE, GT.calls = NULL) {
   pK <- as.numeric(unique(name.vec[seq(2, length(name.vec), by=2)]))
 
   ## Initialize data structure w/ or w/o AUC column, depending on whether ground-truth doublet classifications are available
-  if (GT == TRUE) {
+  if (GT) {
     sweep.stats <- as.data.frame(matrix(0L, nrow=length(sweep.list), ncol=4))
     colnames(sweep.stats) <- c("pN","pK","AUC","BCreal")
     sweep.stats$pN <- factor(rep(pN, each=length(pK), levels = pN))
     sweep.stats$pK <- factor(rep(pK, length(pN),levels = pK))
-  }
-
-  if (GT == FALSE) {
+  } else {
     sweep.stats <- as.data.frame(matrix(0L, nrow=length(sweep.list), ncol=3))
     colnames(sweep.stats) <- c("pN","pK","BCreal")
     sweep.stats$pN <- factor(rep(pN, each=length(pK), levels = pN))
@@ -32,7 +30,7 @@ summarizeSweep <- function(sweep.list, GT = FALSE, GT.calls = NULL) {
     x <- seq(from=min(res.temp$pANN), to=max(res.temp$pANN), length.out=nrow(res.temp))
     sweep.stats$BCreal[i] <- bimodality_coefficient(gkde(x))
 
-    if (GT == FALSE) { next }
+    if (!GT) { next }
 
     ## If ground-truth doublet classifications are available, perform ROC analysis on logistic
     ## regression model trained using pANN vector
