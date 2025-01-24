@@ -28,7 +28,7 @@ paramSweep <- function(seu, PCs=1:10, sct = FALSE, num.cores=1) {
     n.real.cells <- ncol(data)
   } else {
     real.cells <- rownames(seu@meta.data)
-    # data <- seu@assays$RNA@layers$counts
+    data <- counts
 	# rownames(data) <- rownames(seu)
 	# colnames(data) <- real.cells
     n.real.cells <- ncol(data)
