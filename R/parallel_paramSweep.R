@@ -13,7 +13,7 @@ parallel_paramSweep <- function(n, n.real.cells, real.cells, pK, pN, data, orig.
   data_wdoublets <- cbind(data, doublets)
 
   ## Pre-process Seurat object
-  if (sct == FALSE) {
+  if (!sct) {
     print("Creating Seurat object...")
     seu_wdoublets <- CreateSeuratObject(counts = data_wdoublets)
 
@@ -53,9 +53,7 @@ parallel_paramSweep <- function(n, n.real.cells, real.cells, pK, pN, data, orig.
                             rev.pca =  orig.commands$RunPCA.RNA$rev.pca,
                             weight.by.var = orig.commands$RunPCA.RNA$weight.by.var,
                             verbose=FALSE)
-  }
-
-  if (sct == TRUE) {
+  } else {
     require(sctransform)
     print("Creating Seurat object...")
     seu_wdoublets <- CreateSeuratObject(counts = data_wdoublets)
