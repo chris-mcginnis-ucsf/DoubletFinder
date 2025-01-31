@@ -1,3 +1,30 @@
+#' paramSweep
+#'
+#' Performs pN-pK parameter sweeps on a 10,000-cell subset of a pre-processed
+#' Seurat object. Will use all cells if Seurat object contains less than 10,000
+#' cells. Results are fed into 'summarizeSweep' and 'find.pK' functions during
+#' optimal pK parameter selection workflow. Parameters tested: pN = 0.05-0.3,
+#' pK = 0.0005-0.3.
+#'
+#'
+#' @param seu A fully-processed Seurat object (i.e., After NormalizeData,
+#' FindVariableGenes, ScaleData, RunPCA, and RunTSNE have all been performed).
+#' @param PCs Number of statistically-significant principal components (e.g.,
+#' as estimated from PC elbow plot)
+#' @param sct Logical representing whether SCTransform was used during original
+#' Seurat object pre-processing (default = FALSE).
+#' @param num.cores Number of cores to use for parallelization, default=1.
+#' @return List of pANN vectors for every pN and pK combination. Output also
+#' contains pANN information for artificial doublets.
+#' @author Chris McGinnis
+#' @importFrom parallel makeCluster stopCluster
+#' @export
+#' @examples
+#'
+#' sweep.list <- paramSweep(seu, PCs = 1:10, sct=FALSE)
+#' sweep.stats <- summarizeSweep(sweep.list, GT = FALSE)
+#' bcmvn <- find.pK(sweep.stats)
+#'
 paramSweep <- function(seu, PCs=1:10, sct = FALSE, num.cores=1) {
   require(Seurat); require(fields); require(parallel)
   ## Set pN-pK param sweep ranges
@@ -17,7 +44,7 @@ paramSweep <- function(seu, PCs=1:10, sct = FALSE, num.cores=1) {
   } else {
      counts <- GetAssayData(object = seu, assay = "RNA", slot = "counts")
   }
-  
+
   ## Down-sample cells to 10000 (when applicable) for computational effiency
   if (nrow(seu@meta.data) > 10000) {
     real.cells <- rownames(seu@meta.data)[sample(1:nrow(seu@meta.data), 10000, replace=FALSE)]

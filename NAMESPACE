@@ -1,2 +1,2 @@
 exportPattern("^[[:alpha:]]+")
-importFrom(SeuratObject, Version)
+importFrom(SeuratObject,Version)

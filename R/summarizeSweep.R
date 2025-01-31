@@ -1,3 +1,32 @@
+#' summarizeSweep
+#'
+#' Summarizes results from doubletFinder_ParamSweep, computing the bimodality
+#' coefficient across pN and pK parameter space. If ground-truth doublet
+#' classifications are available, then ROC analysis is performed, enabling
+#' optimal DoubletFinder parameter selection.
+#'
+#'
+#' @param sweep.list List of pANN vectors across pN-pK space, as produced by
+#' doubletFinder_ParamSweep.
+#' @param GT Logical set to TRUE when ground-truth doublet classifications are
+#' available for ROC analysis. Default set to FALSE.
+#' @param GT.calls An nCell-length character vector of ground-truth doublet
+#' classifications (e.g., "Singlet" or "Doublet") used to gauge performance of
+#' logistic regression models trained using pANN vectors during ROC analysis.
+#' @return Dataframe with bimodality coefficient values at each pN-pK parameter
+#' set. If GT = TRUE, dataframe also includes AUC for each pN-pK parameter set
+#' computed during ROC analysis.
+#'
+#' @author Chris McGinnis
+#' @importFrom stats approxfun glm binomial predict
+#' @importFrom KernSmooth bkde
+#' @export
+#' @examples
+#'
+#' sweep.list <- paramSweep(seu)
+#' sweep.stats <- summarizeSweep(sweep.list, GT = FALSE)
+#' bcmvn <- find.pK(sweep.stats)
+#'
 summarizeSweep <- function(sweep.list, GT = FALSE, GT.calls = NULL) {
   require(KernSmooth); require(ROCR)
   ## Set pN-pK param sweep ranges

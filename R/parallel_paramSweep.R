@@ -1,3 +1,32 @@
+#' parallel_paramSweep
+#'
+#' Internal parallelization function for paramSweep.
+#'
+#'
+#' @param n pN iteration counter.
+#' @param n.real.cells Number of real cells. Set automatically during
+#' paramSweep_v3.
+#' @param real.cells Vector of real cell IDs. Set automatically during
+#' paramSweep_v3.
+#' @param pK The PC neighborhood size used to compute pANN, expressed as a
+#' proportion of the merged real-artificial data. No default is set, as pK
+#' should be adjusted for each scRNA-seq dataset. Optimal pK values can be
+#' determined using mean-variance-normalized bimodality coefficient.
+#' @param pN The number of generated artificial doublets, expressed as a
+#' proportion of the merged real-artificial data. Default is set to 0.25, based
+#' on observation that DoubletFinder performance is largely pN-invariant (see
+#' McGinnis, Murrow and Gartner 2019, Cell Systems).
+#' @param data Count matrix. Set automatically during paramSweep_v3.
+#' @param orig.commands Count matrix. Set automatically during paramSweep_v3.
+#' @param PCs Number of statistically-sigificant PCs. Set according to
+#' paramSweep_v3 arguments.
+#' @param sct Logical representing whether Seurat object was pre-processed
+#' using 'sctransform'. Set according to paramSweep_v3 arguments (default = F).
+#' @return Parallelization function compatible with mclapply.
+#' @author Nathan Skeene, June 2019.
+#' @examples
+#'
+#'
 parallel_paramSweep <- function(n, n.real.cells, real.cells, pK, pN, data, orig.commands, PCs, sct)  {
 
   sweep.res.list = list()

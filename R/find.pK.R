@@ -1,3 +1,28 @@
+#' find.pK
+#'
+#' Computes and visualizes the mean-variance normalized bimodality coefficient
+#' (BCmvn) score for each pK value tested during doubletFinder_ParamSweep.
+#' Optimal pK for any scRNA-seq data can be manually discerned as maxima in
+#' BCmvn distributions. If ground-truth doublet classifications are available,
+#' BCmvn is plotted along with mean ROC AUC for each pK.
+#'
+#' %% ~~ If necessary, more details than the description above ~~
+#'
+#' @param sweep.stats pN-pK bimodality coefficient dataframe as produced by
+#' summarizeSweep.
+#' @return Dataframe of mean BC, BC variance, and BCmvn scores for each pK
+#' value. Includes mean AUC for each pK value if ground-truth doublet
+#' classifications are utilized during summarizeSweep.
+#' @author Chris McGinnis
+#' @importFrom stats sd
+#' @importFrom graphics par lines axis
+#' @export
+#' @examples
+#'
+#' sweep.list <- paramSweep(seu)
+#' sweep.stats <- summarizeSweep(sweep.list, GT = FALSE)
+#' bcmvn <- find.pK(sweep.stats)
+#'
 find.pK <- function(sweep.stats) {
 
   ## Implementation for data without ground-truth doublet classifications

@@ -1,4 +1,65 @@
-doubletFinder <- function(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, sct = FALSE, annotations = NULL) {
+#' doubletFinder
+#'
+#' Core doublet prediction function of the DoubletFinder package. Generates
+#' artifical doublets from an existing, pre-processed Seurat object. Real and
+#' artificial data are then merged and pre-processed using parameters utilized
+#' for the existing Seurat object. PC distance matrix is then computed and used
+#' the measure the proportion of artificial nearest neighbors (pANN) for every
+#' real cell. pANN is then thresholded according to the number of expected
+#' doublets to generate final doublet predictions.
+#'
+#'
+#' @param seu A fully-processed Seurat object (i.e., After NormalizeData,
+#' FindVariableGenes, ScaleData, and RunPCA have all been performed).
+#' @param PCs Number of statistically-significant principal components (e.g.,
+#' as estimated from PC elbow plot)
+#' @param pN The number of generated artificial doublets, expressed as a
+#' proportion of the merged real-artificial data. Default is set to 0.25, based
+#' on observation that DoubletFinder performance is largely pN-invariant (see
+#' McGinnis, Murrow and Gartner 2019, Cell Systems).
+#' @param pK The PC neighborhood size used to compute pANN, expressed as a
+#' proportion of the merged real-artificial data. No default is set, as pK
+#' should be adjusted for each scRNA-seq dataset. Optimal pK values can be
+#' determined using mean-variance-normalized bimodality coefficient.
+#' @param nExp The total number of doublet predictions produced. This value can
+#' best be estimated from cell loading densities into the 10X/Drop-Seq device,
+#' and adjusted according to the estimated proportion of homotypic doublets.
+#' @param reuse.pANN Seurat metadata column name for previously-generated pANN
+#' results. Argument should be set to FALSE (default) for initial DoubletFinder
+#' runs. Enables fast adjusting of doublet predictions for different nExp.
+#' @param sct Logical representing whether SCTransform was used during original
+#' Seurat object pre-processing (default = FALSE).
+#' @return Seurat object with updated metadata including pANN and doublet
+#' classifications.
+#' @author Chris McGinnis
+#' @export
+#' @importFrom Seurat LayerData GetAssayData Cells CreateSeuratObject NormalizeData
+#'   FindVariableFeatures ScaleData RunPCA SCTransform
+#' @examples
+#'
+#' ## Initial run, nExp set to 0.15 Poisson loading estimate (e.g., 1000 total
+#' doublet predictions)
+#' nExp_poi <- round(0.15*nrow(seu@meta.data))
+#' seu <- doubletFinder(seu, PCs = 1:10,
+#' pN = 0.25, pK = 0.01,
+#' nExp = nExp_poi,
+#' reuse.pANN = FALSE, sct=FALSE)
+#'
+#' ## With homotypic adjustment
+#' homotypic.prop <- modelHomotypic(annotations)
+#' nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
+#' seu <- doubletFinder(seu, PCs = 1:10, pN = 0.25,
+#' pK = 0.01, nExp = nExp_poi.adj,
+#' reuse.pANN = "pANN_0.25_0.01_1000", sct=FALSE)
+#'
+doubletFinder <- function(seu,
+                          PCs,
+                          pN = 0.25,
+                          pK,
+                          nExp,
+                          reuse.pANN = FALSE,
+                          sct = FALSE,
+                          annotations = NULL) {
   require(Seurat); require(fields); require(KernSmooth)
 
   ## Generate new list of doublet classificatons from existing pANN vector to save time
