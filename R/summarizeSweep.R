@@ -20,15 +20,18 @@
 #' @author Chris McGinnis
 #' @importFrom stats approxfun glm binomial predict
 #' @importFrom KernSmooth bkde
+#' @importFrom ROCR performance prediction
 #' @export
 #' @examples
-#'
+#' data(pbmc_small)
+#' seu <- pbmc_small
 #' sweep.list <- paramSweep(seu)
 #' sweep.stats <- summarizeSweep(sweep.list, GT = FALSE)
 #' bcmvn <- find.pK(sweep.stats)
 #'
-summarizeSweep <- function(sweep.list, GT = FALSE, GT.calls = NULL) {
-  require(KernSmooth); require(ROCR)
+summarizeSweep <- function(sweep.list,
+                           GT = FALSE,
+                           GT.calls = NULL) {
   ## Set pN-pK param sweep ranges
   name.vec <- names(sweep.list)
   name.vec <- unlist(strsplit(name.vec, split="pN_"))

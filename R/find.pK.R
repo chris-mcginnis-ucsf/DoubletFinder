@@ -6,8 +6,6 @@
 #' BCmvn distributions. If ground-truth doublet classifications are available,
 #' BCmvn is plotted along with mean ROC AUC for each pK.
 #'
-#' %% ~~ If necessary, more details than the description above ~~
-#'
 #' @param sweep.stats pN-pK bimodality coefficient dataframe as produced by
 #' summarizeSweep.
 #' @return Dataframe of mean BC, BC variance, and BCmvn scores for each pK
@@ -19,6 +17,8 @@
 #' @export
 #' @examples
 #'
+#' data(pbmc_small)
+#' seu <- pbmc_small
 #' sweep.list <- paramSweep(seu)
 #' sweep.stats <- summarizeSweep(sweep.list, GT = FALSE)
 #' bcmvn <- find.pK(sweep.stats)

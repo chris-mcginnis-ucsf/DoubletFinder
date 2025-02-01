@@ -8,10 +8,6 @@
 #' @return Skewness value
 #' @author Chris McGinnis
 #' @references Taken from the 'modes' R package (v0.7).
-#' @examples
-#'
-#' ## Internal to bimodality_coefficient
-#' G <- skewness(x)
 #'
 skewness <- function(x) {
   n <- length(x)

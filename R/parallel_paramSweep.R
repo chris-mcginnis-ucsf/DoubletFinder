@@ -23,11 +23,15 @@
 #' @param sct Logical representing whether Seurat object was pre-processed
 #' using 'sctransform'. Set according to paramSweep_v3 arguments (default = F).
 #' @return Parallelization function compatible with mclapply.
+#' @importFrom fields rdist
+#' @importFrom Seurat SCTransform
 #' @author Nathan Skeene, June 2019.
-#' @examples
 #'
 #'
-parallel_paramSweep <- function(n, n.real.cells, real.cells, pK, pN, data, orig.commands, PCs, sct)  {
+parallel_paramSweep <- function(n, n.real.cells,
+                                real.cells, pK,
+                                pN, data, orig.commands,
+                                PCs, sct)  {
 
   sweep.res.list = list()
   list.ind = 0
@@ -83,7 +87,6 @@ parallel_paramSweep <- function(n, n.real.cells, real.cells, pK, pN, data, orig.
                             weight.by.var = orig.commands$RunPCA.RNA$weight.by.var,
                             verbose=FALSE)
   } else {
-    require(sctransform)
     print("Creating Seurat object...")
     seu_wdoublets <- CreateSeuratObject(counts = data_wdoublets)
 

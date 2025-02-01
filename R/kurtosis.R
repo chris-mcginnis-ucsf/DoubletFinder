@@ -8,7 +8,6 @@
 #' @return Kurtosis value
 #' @author Chris McGinnis
 #' @references Taken from the 'modes' R package (v0.7).
-#' @examples
 #'
 #'
 kurtosis <- function (x) {

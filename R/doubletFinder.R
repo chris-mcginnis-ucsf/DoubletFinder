@@ -29,28 +29,32 @@
 #' runs. Enables fast adjusting of doublet predictions for different nExp.
 #' @param sct Logical representing whether SCTransform was used during original
 #' Seurat object pre-processing (default = FALSE).
+#' @param annotations annotations.
 #' @return Seurat object with updated metadata including pANN and doublet
 #' classifications.
 #' @author Chris McGinnis
 #' @export
-#' @importFrom Seurat LayerData GetAssayData Cells CreateSeuratObject NormalizeData
+#' @importFrom Seurat GetAssayData Cells CreateSeuratObject NormalizeData
 #'   FindVariableFeatures ScaleData RunPCA SCTransform
+#' @importFrom SeuratObject LayerData
 #' @examples
 #'
-#' ## Initial run, nExp set to 0.15 Poisson loading estimate (e.g., 1000 total
-#' doublet predictions)
-#' nExp_poi <- round(0.15*nrow(seu@meta.data))
+#' data(pbmc_small)
+#' seu <- pbmc_small
+#' nExp_poi <- round(0.15*nrow(seu@@meta.data))
 #' seu <- doubletFinder(seu, PCs = 1:10,
 #' pN = 0.25, pK = 0.01,
 #' nExp = nExp_poi,
 #' reuse.pANN = FALSE, sct=FALSE)
 #'
 #' ## With homotypic adjustment
+#' annotations <- seu$RNA_snn_res.1
 #' homotypic.prop <- modelHomotypic(annotations)
 #' nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 #' seu <- doubletFinder(seu, PCs = 1:10, pN = 0.25,
-#' pK = 0.01, nExp = nExp_poi.adj,
-#' reuse.pANN = "pANN_0.25_0.01_1000", sct=FALSE)
+#'                      pK = 0.01, nExp = nExp_poi.adj,
+#'                      reuse.pANN = FALSE,
+#'                      sct=FALSE)
 #'
 doubletFinder <- function(seu,
                           PCs,
@@ -60,7 +64,6 @@ doubletFinder <- function(seu,
                           reuse.pANN = FALSE,
                           sct = FALSE,
                           annotations = NULL) {
-  require(Seurat); require(fields); require(KernSmooth)
 
   ## Generate new list of doublet classificatons from existing pANN vector to save time
   if (reuse.pANN) {
@@ -145,7 +148,6 @@ doubletFinder <- function(seu,
       nCells <- length(cell.names)
       rm(seu_wdoublets); gc() # Free up memory
     } else {
-      require(sctransform)
       print("Creating Seurat object...")
       seu_wdoublets <- CreateSeuratObject(counts = data_wdoublets)
 
