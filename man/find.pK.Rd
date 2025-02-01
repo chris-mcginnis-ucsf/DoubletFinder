@@ -22,11 +22,10 @@ Optimal pK for any scRNA-seq data can be manually discerned as maxima in
 BCmvn distributions. If ground-truth doublet classifications are available,
 BCmvn is plotted along with mean ROC AUC for each pK.
 }
-\details{
-%% ~~ If necessary, more details than the description above ~~
-}
 \examples{
 
+data(pbmc_small)
+seu <- pbmc_small
 sweep.list <- paramSweep(seu)
 sweep.stats <- summarizeSweep(sweep.list, GT = FALSE)
 bcmvn <- find.pK(sweep.stats)

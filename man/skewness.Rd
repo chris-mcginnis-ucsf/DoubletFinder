@@ -16,12 +16,6 @@ Skewness value
 Internal function to compute skewness during BCmvn computation and pK
 estimation.
 }
-\examples{
-
-## Internal to bimodality_coefficient
-G <- skewness(x)
-
-}
 \references{
 Taken from the 'modes' R package (v0.7).
 }

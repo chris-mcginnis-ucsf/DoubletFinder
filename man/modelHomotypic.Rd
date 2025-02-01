@@ -21,21 +21,26 @@ proportions are modeled as the sum of squared annotation frequencies.
 \examples{
 
 ## Initial run, nExp set to Poisson loading estimate (e.g., 913 total
-doublet predictions)
-nExp_poi <- round(0.15*length(seu@cell.names))
+## doublet predictions)
+data(pbmc_small)
+seu <- pbmc_small
+nExp_poi <- round(0.15*length(seu$RNA_snn_res.1))
 seu <- doubletFinder(seu,
-pN = 0.25,
-pK = 0.01,
-nExp = nExp_poi,
-reuse.pANN = FALSE)
+                     PCs = 1:10,
+                     pN = 0.25,
+                     pK = 0.01,
+                     nExp = nExp_poi,
+                     reuse.pANN = FALSE)
 
 ## With homotypic adjustment
+annotations <- seu@meta.data$RNA_snn_res.1
 homotypic.prop <- modelHomotypic(annotations)
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 seu <- doubletFinder(seu, pN = 0.25,
- pK = 0.01,
- nExp = nExp_poi.adj,
- reuse.pANN = "pANN_0.25_0.01_913")
+                     PCs = 1:10,
+                     pK = 0.01,
+                     nExp = nExp_poi.adj,
+                     reuse.pANN = FALSE)
 
 }
 \author{

@@ -29,7 +29,8 @@ classifications are available, then ROC analysis is performed, enabling
 optimal DoubletFinder parameter selection.
 }
 \examples{
-
+data(pbmc_small)
+seu <- pbmc_small
 sweep.list <- paramSweep(seu)
 sweep.stats <- summarizeSweep(sweep.list, GT = FALSE)
 bcmvn <- find.pK(sweep.stats)

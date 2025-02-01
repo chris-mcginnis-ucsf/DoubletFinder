@@ -30,7 +30,8 @@ optimal pK parameter selection workflow. Parameters tested: pN = 0.05-0.3,
 pK = 0.0005-0.3.
 }
 \examples{
-
+data(pbmc_small)
+seu <- pbmc_small
 sweep.list <- paramSweep(seu, PCs = 1:10, sct=FALSE)
 sweep.stats <- summarizeSweep(sweep.list, GT = FALSE)
 bcmvn <- find.pK(sweep.stats)

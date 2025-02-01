@@ -42,6 +42,8 @@ runs. Enables fast adjusting of doublet predictions for different nExp.}
 
 \item{sct}{Logical representing whether SCTransform was used during original
 Seurat object pre-processing (default = FALSE).}
+
+\item{annotations}{annotations.}
 }
 \value{
 Seurat object with updated metadata including pANN and doublet
@@ -58,8 +60,8 @@ doublets to generate final doublet predictions.
 }
 \examples{
 
-## Initial run, nExp set to 0.15 Poisson loading estimate (e.g., 1000 total
-doublet predictions)
+data(pbmc_small)
+seu <- pbmc_small
 nExp_poi <- round(0.15*nrow(seu@meta.data))
 seu <- doubletFinder(seu, PCs = 1:10,
 pN = 0.25, pK = 0.01,
@@ -67,11 +69,13 @@ nExp = nExp_poi,
 reuse.pANN = FALSE, sct=FALSE)
 
 ## With homotypic adjustment
+annotations <- seu$RNA_snn_res.1
 homotypic.prop <- modelHomotypic(annotations)
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 seu <- doubletFinder(seu, PCs = 1:10, pN = 0.25,
-pK = 0.01, nExp = nExp_poi.adj,
-reuse.pANN = "pANN_0.25_0.01_1000", sct=FALSE)
+                     pK = 0.01, nExp = nExp_poi.adj,
+                     reuse.pANN = FALSE,
+                     sct=FALSE)
 
 }
 \author{
