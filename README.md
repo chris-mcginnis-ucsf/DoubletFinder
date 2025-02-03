@@ -11,7 +11,7 @@ DoubletFinder was published by Cell Systems in April, 2019: https://www.cell.com
 
 ## Updates
 
-(02/02/2025) Haibo Liu (Senior Bioinformatician at UMass) added as maintainer after his much-needed improvement updates to the package.
+(02/02/2025) Haibo Liu (Senior Bioinformatician at UMass, @haibol2016) added as maintainer after his much-needed improvement updates to the package.
 
 (11/21/2023) Made compatible with Seurat v5 and removed '_v3' flag from relevant function names.
 
