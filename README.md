@@ -47,6 +47,10 @@ DoubletFinder requires the following R packages:
 * parallel (3.5.1)
 * NOTE: These package versions were used in the bioRxiv paper, but other versions may work, as well.
 
+## Frequently Asked Questions
+
+... 
+
 # DoubletFinder Overview
 
 DoubletFinder can be broken up into 4 steps:
