@@ -1,5 +1,37 @@
-summarizeSweep <- function(sweep.list, GT = FALSE, GT.calls = NULL) {
-  require(KernSmooth); require(ROCR)
+#' summarizeSweep
+#'
+#' Summarizes results from doubletFinder_ParamSweep, computing the bimodality
+#' coefficient across pN and pK parameter space. If ground-truth doublet
+#' classifications are available, then ROC analysis is performed, enabling
+#' optimal DoubletFinder parameter selection.
+#'
+#'
+#' @param sweep.list List of pANN vectors across pN-pK space, as produced by
+#' doubletFinder_ParamSweep.
+#' @param GT Logical set to TRUE when ground-truth doublet classifications are
+#' available for ROC analysis. Default set to FALSE.
+#' @param GT.calls An nCell-length character vector of ground-truth doublet
+#' classifications (e.g., "Singlet" or "Doublet") used to gauge performance of
+#' logistic regression models trained using pANN vectors during ROC analysis.
+#' @return Dataframe with bimodality coefficient values at each pN-pK parameter
+#' set. If GT = TRUE, dataframe also includes AUC for each pN-pK parameter set
+#' computed during ROC analysis.
+#'
+#' @author Chris McGinnis
+#' @importFrom stats approxfun glm binomial predict
+#' @importFrom KernSmooth bkde
+#' @importFrom ROCR performance prediction
+#' @export
+#' @examples
+#' data(pbmc_small)
+#' seu <- pbmc_small
+#' sweep.list <- paramSweep(seu)
+#' sweep.stats <- summarizeSweep(sweep.list, GT = FALSE)
+#' bcmvn <- find.pK(sweep.stats)
+#'
+summarizeSweep <- function(sweep.list,
+                           GT = FALSE,
+                           GT.calls = NULL) {
   ## Set pN-pK param sweep ranges
   name.vec <- names(sweep.list)
   name.vec <- unlist(strsplit(name.vec, split="pN_"))
@@ -9,14 +41,12 @@ summarizeSweep <- function(sweep.list, GT = FALSE, GT.calls = NULL) {
   pK <- as.numeric(unique(name.vec[seq(2, length(name.vec), by=2)]))
 
   ## Initialize data structure w/ or w/o AUC column, depending on whether ground-truth doublet classifications are available
-  if (GT == TRUE) {
+  if (GT) {
     sweep.stats <- as.data.frame(matrix(0L, nrow=length(sweep.list), ncol=4))
     colnames(sweep.stats) <- c("pN","pK","AUC","BCreal")
     sweep.stats$pN <- factor(rep(pN, each=length(pK), levels = pN))
     sweep.stats$pK <- factor(rep(pK, length(pN),levels = pK))
-  }
-
-  if (GT == FALSE) {
+  } else {
     sweep.stats <- as.data.frame(matrix(0L, nrow=length(sweep.list), ncol=3))
     colnames(sweep.stats) <- c("pN","pK","BCreal")
     sweep.stats$pN <- factor(rep(pN, each=length(pK), levels = pN))
@@ -32,7 +62,7 @@ summarizeSweep <- function(sweep.list, GT = FALSE, GT.calls = NULL) {
     x <- seq(from=min(res.temp$pANN), to=max(res.temp$pANN), length.out=nrow(res.temp))
     sweep.stats$BCreal[i] <- bimodality_coefficient(gkde(x))
 
-    if (GT == FALSE) { next }
+    if (!GT) { next }
 
     ## If ground-truth doublet classifications are available, perform ROC analysis on logistic
     ## regression model trained using pANN vector

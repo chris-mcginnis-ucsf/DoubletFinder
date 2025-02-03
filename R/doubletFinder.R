@@ -1,19 +1,86 @@
-doubletFinder <- function(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, sct = FALSE, annotations = NULL) {
-  require(Seurat); require(fields); require(KernSmooth)
+#' doubletFinder
+#'
+#' Core doublet prediction function of the DoubletFinder package. Generates
+#' artifical doublets from an existing, pre-processed Seurat object. Real and
+#' artificial data are then merged and pre-processed using parameters utilized
+#' for the existing Seurat object. PC distance matrix is then computed and used
+#' the measure the proportion of artificial nearest neighbors (pANN) for every
+#' real cell. pANN is then thresholded according to the number of expected
+#' doublets to generate final doublet predictions.
+#'
+#'
+#' @param seu A fully-processed Seurat object (i.e., After NormalizeData,
+#' FindVariableGenes, ScaleData, and RunPCA have all been performed).
+#' @param PCs Number of statistically-significant principal components (e.g.,
+#' as estimated from PC elbow plot)
+#' @param pN The number of generated artificial doublets, expressed as a
+#' proportion of the merged real-artificial data. Default is set to 0.25, based
+#' on observation that DoubletFinder performance is largely pN-invariant (see
+#' McGinnis, Murrow and Gartner 2019, Cell Systems).
+#' @param pK The PC neighborhood size used to compute pANN, expressed as a
+#' proportion of the merged real-artificial data. No default is set, as pK
+#' should be adjusted for each scRNA-seq dataset. Optimal pK values can be
+#' determined using mean-variance-normalized bimodality coefficient.
+#' @param nExp The total number of doublet predictions produced. This value can
+#' best be estimated from cell loading densities into the 10X/Drop-Seq device,
+#' and adjusted according to the estimated proportion of homotypic doublets.
+#' @param reuse.pANN Seurat metadata column name for previously-generated pANN
+#' results. Argument should be set to FALSE (default) for initial DoubletFinder
+#' runs. Enables fast adjusting of doublet predictions for different nExp.
+#' @param sct Logical representing whether SCTransform was used during original
+#' Seurat object pre-processing (default = FALSE).
+#' @param annotations annotations.
+#' @return Seurat object with updated metadata including pANN and doublet
+#' classifications.
+#' @author Chris McGinnis
+#' @export
+#' @importFrom Seurat GetAssayData Cells CreateSeuratObject NormalizeData
+#'   FindVariableFeatures ScaleData RunPCA SCTransform
+#' @importFrom SeuratObject LayerData
+#' @examples
+#'
+#' data(pbmc_small)
+#' seu <- pbmc_small
+#' nExp_poi <- round(0.15*nrow(seu@@meta.data))
+#' seu <- doubletFinder(seu, PCs = 1:10,
+#' pN = 0.25, pK = 0.01,
+#' nExp = nExp_poi,
+#' reuse.pANN = FALSE, sct=FALSE)
+#'
+#' ## With homotypic adjustment
+#' annotations <- seu$RNA_snn_res.1
+#' homotypic.prop <- modelHomotypic(annotations)
+#' nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
+#' seu <- doubletFinder(seu, PCs = 1:10, pN = 0.25,
+#'                      pK = 0.01, nExp = nExp_poi.adj,
+#'                      reuse.pANN = FALSE,
+#'                      sct=FALSE)
+#'
+doubletFinder <- function(seu,
+                          PCs,
+                          pN = 0.25,
+                          pK,
+                          nExp,
+                          reuse.pANN = FALSE,
+                          sct = FALSE,
+                          annotations = NULL) {
 
   ## Generate new list of doublet classificatons from existing pANN vector to save time
-  if (reuse.pANN != FALSE ) {
+  if (reuse.pANN) {
     pANN.old <- seu@meta.data[ , reuse.pANN]
     classifications <- rep("Singlet", length(pANN.old))
     classifications[order(pANN.old, decreasing=TRUE)[1:nExp]] <- "Doublet"
     seu@meta.data[, paste("DF.classifications",pN,pK,nExp,sep="_")] <- classifications
     return(seu)
-  }
-
-  if (reuse.pANN == FALSE) {
+  } else {
     ## Make merged real-artifical data
     real.cells <- rownames(seu@meta.data)
-    data <- seu@assays$RNA$counts[, real.cells]
+    if (SeuratObject::Version(seu)>= '5.0') {
+         counts <- LayerData(seu, assay = "RNA", layer = "counts")
+    } else {
+         counts <- GetAssayData(object = seu, assay = "RNA", slot = "counts")
+    }
+    data <- counts[, real.cells]
     n_real.cells <- length(real.cells)
     n_doublets <- round(n_real.cells/(1 - pN) - n_real.cells)
     print(paste("Creating",n_doublets,"artificial doublets...",sep=" "))
@@ -36,7 +103,7 @@ doubletFinder <- function(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, sct
     orig.commands <- seu@commands
 
     ## Pre-process Seurat object
-    if (sct == FALSE) {
+    if (!sct) {
       print("Creating Seurat object...")
       seu_wdoublets <- CreateSeuratObject(counts = data_wdoublets)
 
@@ -80,10 +147,7 @@ doubletFinder <- function(seu, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, sct
       cell.names <- rownames(seu_wdoublets@meta.data)
       nCells <- length(cell.names)
       rm(seu_wdoublets); gc() # Free up memory
-    }
-
-    if (sct == TRUE) {
-      require(sctransform)
+    } else {
       print("Creating Seurat object...")
       seu_wdoublets <- CreateSeuratObject(counts = data_wdoublets)
 
