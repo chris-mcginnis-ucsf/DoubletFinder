@@ -49,7 +49,14 @@ DoubletFinder requires the following R packages:
 
 ## Frequently Asked Questions
 
-... 
+Question: What is my anticipated doublet rate? 
+Answer: This is dependent on your platform (10x, parse, etc.) and will vary with the number of input cells. It will not always be 7.5% as is used in the tutorial. This information is available in the user guides for each technology. See https://github.com/chris-mcginnis-ucsf/DoubletFinder/issues/76 and https://github.com/chris-mcginnis-ucsf/DoubletFinder/issues/156
+
+Question: Can I run DoubletFinder on merged data from multiple 10x lanes?
+Answer: Technically yes but I would only do this if you were splitting the same sample across multiple lanes. You want to avoid instances where DoubletFinder is attempting to find doublets that do not actually exist in the data. I would also not advise running DF on integrated Seurat objects. See https://github.com/chris-mcginnis-ucsf/DoubletFinder/issues/101 
+
+Question: I see multiple potential pK values when visualizing BCmvn -- what should I do?
+Answer: I would spot check the results in GEX space to see what makes the most sense given your understanding of the data. See https://github.com/chris-mcginnis-ucsf/DoubletFinder/issues/62 and https://github.com/chris-mcginnis-ucsf/DoubletFinder/issues/40
 
 # DoubletFinder Overview
 
