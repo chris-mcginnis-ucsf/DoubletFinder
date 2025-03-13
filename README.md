@@ -34,7 +34,9 @@ New Features:
 
 ## Installation (in R/RStudio)
 
+```{r}
 remotes::install_github('chris-mcginnis-ucsf/DoubletFinder')
+```
 
 ## Dependencies
 
