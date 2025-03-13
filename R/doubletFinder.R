@@ -25,7 +25,7 @@
 #' best be estimated from cell loading densities into the 10X/Drop-Seq device,
 #' and adjusted according to the estimated proportion of homotypic doublets.
 #' @param reuse.pANN Seurat metadata column name for previously-generated pANN
-#' results. Argument should be set to FALSE (default) for initial DoubletFinder
+#' results. Argument should be set to NULL (default) for initial DoubletFinder
 #' runs. Enables fast adjusting of doublet predictions for different nExp.
 #' @param sct Logical representing whether SCTransform was used during original
 #' Seurat object pre-processing (default = FALSE).
@@ -45,7 +45,7 @@
 #' seu <- doubletFinder(seu, PCs = 1:10,
 #' pN = 0.25, pK = 0.01,
 #' nExp = nExp_poi,
-#' reuse.pANN = FALSE, sct=FALSE)
+#' reuse.pANN = NULL, sct=FALSE)
 #'
 #' ## With homotypic adjustment
 #' annotations <- seu$RNA_snn_res.1
@@ -53,7 +53,7 @@
 #' nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 #' seu <- doubletFinder(seu, PCs = 1:10, pN = 0.25,
 #'                      pK = 0.01, nExp = nExp_poi.adj,
-#'                      reuse.pANN = FALSE,
+#'                      reuse.pANN = NULL,
 #'                      sct=FALSE)
 #'
 doubletFinder <- function(seu,
@@ -61,12 +61,12 @@ doubletFinder <- function(seu,
                           pN = 0.25,
                           pK,
                           nExp,
-                          reuse.pANN = FALSE,
+                          reuse.pANN = NULL,
                           sct = FALSE,
                           annotations = NULL) {
 
   ## Generate new list of doublet classificatons from existing pANN vector to save time
-  if (reuse.pANN) {
+  if (is.NULL(reuse.pANN)) {
     pANN.old <- seu@meta.data[ , reuse.pANN]
     classifications <- rep("Singlet", length(pANN.old))
     classifications[order(pANN.old, decreasing=TRUE)[1:nExp]] <- "Doublet"
