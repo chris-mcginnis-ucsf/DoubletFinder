@@ -2,9 +2,12 @@ Type: Package
 Package: DoubletFinder
 Title: DoubletFinder is a suite of tools for identifying doublets
     in single-cell RNA sequencing data
-Version: 2.0.4
-Author: person("Chris", "McGinnis", email =
-    "cmcginni@stanford.edu", role = c("aut","cre"))
+Version: 2.0.5
+Author: c(person("Chris", "McGinnis", email =
+                 "cmcginni@stanford.edu", role = c("aut","cre")),
+          person("Haibo", "Liu", , 
+                 email = "haibo.liu@umassmed.edu", role = c("cre"),
+                 comment = c(ORCID = "0000-0002-4213-2883")))
 Maintainer: <cmcginni92@gmail.com>
 Description: DoubletFinder identifies doublets by generating
     artificial doublets from existing scRNA-seq data and defining which
