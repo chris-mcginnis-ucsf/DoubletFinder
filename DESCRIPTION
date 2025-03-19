@@ -2,7 +2,7 @@ Type: Package
 Package: DoubletFinder
 Title: DoubletFinder is a suite of tools for identifying doublets
     in single-cell RNA sequencing data
-Version: 2.0.5
+Version: 2.0.6
 Author: c(person("Chris", "McGinnis", email =
                  "cmcginni@stanford.edu", role = c("aut","cre")),
           person("Haibo", "Liu", , 
