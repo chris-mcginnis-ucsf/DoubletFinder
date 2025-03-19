@@ -66,7 +66,7 @@ doubletFinder <- function(seu,
                           annotations = NULL) {
 
   ## Generate new list of doublet classificatons from existing pANN vector to save time
-  if (is.null(reuse.pANN)) {
+  if (!is.null(reuse.pANN)) {
     pANN.old <- seu@meta.data[ , reuse.pANN]
     classifications <- rep("Singlet", length(pANN.old))
     classifications[order(pANN.old, decreasing=TRUE)[1:nExp]] <- "Doublet"
