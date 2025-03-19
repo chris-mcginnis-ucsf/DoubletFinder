@@ -176,12 +176,12 @@ seu_kidney <- doubletFinder(seu_kidney, PCs = 1:10, pN = 0.25, pK = 0.09, nExp =
 ![alternativetext](DF.screenshots/DFkidney_low.vs.high.png)
 
 ## Other Doublet Detection Methods
-[Scrublet](https://github.com/AllonKleinLab/scrublet)
-[DoubletDecon](https://github.com/EDePasquale/DoubletDecon)
-[DoubletDetection](https://github.com/JonathanShor/DoubletDetection)
-[Solo](https://github.com/calico/solo)
-[scds](https://github.com/kostkalab/scds)
-[scDblFinder](https://github.com/plger/scDblFinder)
+[Scrublet (Py)](https://github.com/AllonKleinLab/scrublet)
+[DoubletDecon (R)](https://github.com/EDePasquale/DoubletDecon)
+[DoubletDetection (Py)](https://github.com/JonathanShor/DoubletDetection)
+[Solo (Py)](https://github.com/calico/solo)
+[scds (R)](https://github.com/kostkalab/scds)
+[scDblFinder (R)](https://github.com/plger/scDblFinder)
 
 ## References
 
